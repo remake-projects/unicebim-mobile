@@ -1,0 +1,107 @@
+/** Turkish — source of truth for translation keys. */
+const tr = {
+  common: {
+    appName: 'UniCebim',
+    save: 'Kaydet',
+    cancel: 'Vazgeç',
+    retry: 'Tekrar dene',
+    continue: 'Devam',
+    comingSoon: 'Bu ekran yakında burada.',
+  },
+  tabs: {
+    home: 'Ana Sayfa',
+    transactions: 'İşlemler',
+    stats: 'İstatistik',
+    profile: 'Profil',
+  },
+  auth: {
+    email: 'E-posta',
+    password: 'Parola',
+    passwordConfirm: 'Parola (tekrar)',
+    fullName: 'Ad soyad',
+    signIn: {
+      title: 'Tekrar hoş geldin',
+      subtitle: 'Bütçeni takip etmeye devam etmek için giriş yap.',
+      submit: 'Giriş yap',
+      noAccount: 'Hesabın yok mu? Kayıt ol',
+      forgotPassword: 'Parolamı unuttum',
+    },
+    signUp: {
+      title: 'Hesap oluştur',
+      subtitle: 'Harcamalarını, cüzdanlarını ve ödemelerini tek yerden yönet.',
+      acceptTerms: 'Gizlilik politikasını ve kullanım şartlarını kabul ediyorum.',
+      submit: 'Kayıt ol',
+      haveAccount: 'Zaten hesabın var mı? Giriş yap',
+    },
+    checkEmail: {
+      title: 'E-postanı kontrol et',
+      body: '{{email}} adresine bir doğrulama bağlantısı gönderdik. Bağlantıya bu telefondan dokunursan uygulama otomatik açılır.',
+      resend: 'Bağlantıyı tekrar gönder',
+      resent: 'Bu adresle bir hesap varsa bağlantıyı tekrar gönderdik.',
+      backToSignIn: 'Girişe dön',
+    },
+    forgotPassword: {
+      title: 'Parolanı sıfırla',
+      subtitle: 'Hesabına bağlı e-posta adresine bir sıfırlama bağlantısı gönderelim.',
+      submit: 'Bağlantı gönder',
+      sent: 'Bu adresle bir hesap varsa sıfırlama bağlantısını gönderdik.',
+    },
+    callback: {
+      confirming: 'Hesabın doğrulanıyor…',
+      confirmedSignIn: 'E-postan doğrulandı. Şimdi giriş yapabilirsin.',
+      failed: 'Bağlantı geçersiz ya da süresi dolmuş.',
+    },
+    signOut: 'Çıkış yap',
+  },
+  errors: {
+    invalidCredentials: 'E-posta veya parola hatalı.',
+    emailNotConfirmed: 'E-posta adresin henüz doğrulanmadı.',
+    rateLimited: 'Çok fazla deneme yaptın. Biraz bekleyip tekrar dene.',
+    network: 'Bağlantı kurulamadı. İnternetini kontrol et.',
+    insufficientBalance: 'Cüzdanda yeterli bakiye yok.',
+    notFound: 'Kayıt bulunamadı.',
+    generic: 'Bir şeyler ters gitti. Lütfen tekrar dene.',
+  },
+  validation: {
+    required: 'Bu alan zorunlu.',
+    tooLong: 'Çok uzun.',
+    tooShort: 'Çok kısa.',
+    amountPositive: "Tutar 0'dan büyük olmalı.",
+    amountNonNegative: 'Tutar negatif olamaz.',
+    invalidAmount: 'Geçerli bir tutar gir.',
+    invalidDate: 'Geçerli bir tarih seç.',
+    dateInPast: 'Tarih bugünden önce olamaz.',
+    invalidCategory: 'Bu tür için geçerli bir kategori seç.',
+    invalidId: 'Geçersiz seçim.',
+    sameWallet: 'Aynı cüzdana transfer yapılamaz.',
+    invalidEmail: 'Geçerli bir e-posta adresi gir.',
+    passwordTooShort: 'Parola en az 8 karakter olmalı.',
+    passwordsDontMatch: 'Parolalar eşleşmiyor.',
+    passwordUnchanged: 'Yeni parola mevcut paroladan farklı olmalı.',
+    termsRequired: 'Devam etmek için şartları kabul etmelisin.',
+    invalidCurrency: 'Geçerli bir para birimi seç.',
+    invalidTimeZone: 'Geçerli bir saat dilimi seç.',
+    invalidUrl: 'Geçerli bir bağlantı gir.',
+  },
+  categories: {
+    scholarship: 'Burs / KYK',
+    family: 'Aile desteği',
+    job: 'İş / Freelance',
+    social: 'Sosyal / Keyif',
+    food: 'Beslenme',
+    transport: 'Ulaşım',
+    bills: 'Faturalar & Kira',
+    education: 'Okul',
+    other: 'Diğer',
+    transfer: 'Transfer',
+  },
+  wallets: {
+    defaultCash: 'Nakit',
+    defaultBank: 'Banka',
+  },
+};
+
+export default tr;
+
+type Widen<T> = { [K in keyof T]: T[K] extends string ? string : Widen<T[K]> };
+export type Translations = Widen<typeof tr>;
