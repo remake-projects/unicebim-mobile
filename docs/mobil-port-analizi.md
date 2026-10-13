@@ -211,7 +211,7 @@ Not: En büyük işler (§4'teki veritabanı düzeltmeleri ve mobil tasarım) ç
 | Katman | Ne kullanıyoruz | Web'deki karşılığı |
 |---|---|---|
 | Ekranlar ve gezinme | Expo Router | Next.js `app/` klasörü |
-| Görünüm / stil | NativeWind (Tailwind sınıfları telefonda) | Tailwind + shadcn |
+| Görünüm / stil | React Native `StyleSheet` + tema token'ları (`constants/theme.ts`) | Tailwind + shadcn |
 | Hesaplama çekirdeği (`core`) | Web'den kopyalanan saf TypeScript | `features/*` içindeki hesap dosyaları |
 | Formlar | react-hook-form + zod | Aynısı |
 | Veriye erişim | Supabase JS, doğrudan veritabanına | Server Actions |
@@ -287,14 +287,14 @@ supabase/migrations/         # SQL migration'lar (docs/supabase.sql'in yerini al
 | Web | Mobil öneri | Not |
 |---|---|---|
 | Next.js App Router | **Expo + Expo Router** | dosya tabanlı route, deep link, typed routes |
-| Tailwind + shadcn/ui | **NativeWind** + kendi `ui/` bileşenleri | Tailwind sınıf bilgisi korunur |
+| Tailwind + shadcn/ui | `StyleSheet` + tema token'ları + kendi `components/ui` bileşenleri | NativeWind yerine (SDK 57 / RN 0.86 ile sürüm riski, ek build adımı); gerekirse ileride NativeWind/Uniwind değerlendirilir |
 | Radix Dialog/Sheet/Dropdown | `@gorhom/bottom-sheet`, native `Alert`/ActionSheet | |
 | `lucide-react` | `lucide-react-native` | aynı ikon adları (`category-meta.tsx` neredeyse aynen) |
 | `motion` | `react-native-reanimated` | |
 | `recharts` | `victory-native` (Skia) veya `react-native-gifted-charts` | 6 grafik türü yeniden yazılır |
 | `sonner` | `sonner-native` veya `burnt` | |
 | `next-themes` | `useColorScheme` + kalıcı tema tercihi | |
-| `@supabase/ssr` | `@supabase/supabase-js` + `expo-secure-store` (büyük oturum için şifreli AsyncStorage deseni) | `AppState` değişiminde `startAutoRefresh/stopAutoRefresh` |
+| `@supabase/ssr` | `@supabase/supabase-js` + `expo-sqlite/localStorage` (Expo'nun resmi Supabase rehberi) | `AppState` değişiminde `startAutoRefresh/stopAutoRefresh`; PKCE akışı |
 | `revalidatePath` / RSC | **TanStack Query** (cache, invalidation, optimistic update, offline persist) | |
 | `react-hook-form` + `zod` | aynen | RN `TextInput` ile `Controller` |
 | `zustand` | aynen (UI state: seçili ay, tema, filtre) | |
@@ -339,7 +339,9 @@ Mobil istemci doğrudan DB'ye yazacağı için, bugün server action'ların "ell
 | B15 | (Faz 5) Push bildirimleri için `device_tokens` tablosu + zamanlanmış Edge Function | Ödeme/abonelik hatırlatıcıları |
 | B16 | Kategorileri **dil-bağımsız kimliklere** çevir (`KYK/Burs` → `scholarship` vb.), DB CHECK'lerini güncelle, mevcut veriyi dönüştür | Global hedef; görünen ad i18n'den gelir (§10) |
 | B17 | `profiles`'a `currency` (ISO 4217, varsayılan `TRY`), `timezone` (IANA), `locale` kolonları; `subscriptions.currency` `TL` → `TRY` | Global hedef (§10) |
-| B18 | "Bugün"e bağlı RPC'ler (`current_date` kullananlar) `p_today date` parametresi alsın; trend RPC'si `p_tz` ile ay kovalasın | DB'nin UTC "bugün"ü kullanıcının bugünü değil |
+| B18 | "Bugün"e bağlı hesaplar kullanıcının saat dilimiyle yapılsın | Uygulandı: `get_monthly_trends(p_months, p_tz)`. Ödemeler/abonelikler mobilde tabloya doğrudan, istemcinin "bugün"üyle sorgulanır; `current_date` kullanan eski RPC'ler yalnız web için duruyor |
+
+**Durum (2026-10-13):** B1–B8, B10–B14, B16–B18 `supabase/migrations/` + `supabase/functions/delete-account` olarak yazıldı ve `npm run test:db` ile lokal Postgres'te 47 davranış testiyle doğrulandı. Henüz yapılmayanlar: B9 (tek çağrılık dashboard RPC'si — ihtiyaç görülürse), B15 (push bildirimleri, Faz 6). Migration'lar Supabase projesine **henüz uygulanmadı**.
 
 ---
 
@@ -368,6 +370,7 @@ Bunlar mobilde birebir kopyalanmamalı. Çoğu §4'teki DB değişiklikleriyle k
 - Önizlemede parser'a `walletId: "preview"` veriliyor (`:692`) → uuid kolonuna geçersiz değerle iki gereksiz sorgu (hata yutuluyor).
 - İçe aktarılan işlemler cüzdan bakiyesini güncellemiyor.
 - Parser'ların içinde Supabase sorgusu var → parse ve veri erişimi ayrılmalı.
+- Tutar ayrıştırma `replace(',', '.')` + `parseFloat` ile yapılıyor: `1.234,56` → `1.234` okunuyor (binlik ayırıcılı her tutar yanlış). Port sırasında bulundu, `core/money.ts` `parseMoneyInput` ile düzeltildi.
 - `bulkImportTransactionsAction` hiçbir yerden çağrılmıyor (ölü kod).
 → Parser'ı saflaştır, işareti koru (`type` parser'dan gelsin), **B7**.
 
@@ -403,7 +406,7 @@ Mobil dashboard'u tasarlamadan önce bu tanımlar netleştirilmeli.
 ## 6. Mobile Özgü Konular
 
 ### 6.1 Kimlik doğrulama ve oturum
-- `supabase-js` istemcisi: `persistSession: true`, `detectSessionInUrl: false`, depolama olarak SecureStore (oturum JSON'u 2KB'ı aşabildiği için şifreli AsyncStorage + SecureStore'da anahtar deseni).
+- `supabase-js` istemcisi: `persistSession: true`, `detectSessionInUrl: false`, `flowType: 'pkce'`, depolama olarak `expo-sqlite/localStorage` (Expo'nun resmi Supabase rehberi; uygulamanın kendi korumalı alanında, ayrıca şifrelenmeden). Biyometrik kilit/şifreli depolama Faz 6'da değerlendirilir.
 - `AppState` ön plana geçince `auth.startAutoRefresh()`, arka planda `stopAutoRefresh()`.
 - Kayıt/doğrulama: `emailRedirectTo: 'unicebim://auth/callback'` → Expo Router'da `auth/callback` ekranı `exchangeCodeForSession` / `verifyOtp` (web'deki `auth/callback/route.ts` mantığı). Universal/App Links ileride.
 - `registerAction`'daki istemci tarafı profil upsert'i gereksiz (trigger var).
@@ -421,7 +424,7 @@ Mobil dashboard'u tasarlamadan önce bu tanımlar netleştirilmeli.
 |---|---|
 | Tab: **Ana Sayfa** | `/dashboard` (+ onboarding) |
 | Tab: **İşlemler** | `/transactions/list` (ay seçici, filtre, sonsuz liste, swipe ile sil/düzenle) |
-| **FAB (+)** → bottom sheet | `AddTransactionModal` / `QuickAddTransactionDialog` (Tutar → Kategori → Kaydet) |
+| **Yüzen "+" butonu** → bottom sheet | `AddTransactionModal` / `QuickAddTransactionDialog` (Tutar → Kategori → Kaydet). Native tab bar ortada özel buton desteklemediği için tab bar'ın değil ekranların üstünde durur |
 | Tab: **İstatistik** | `/dashboard/stats` + `/dashboard/reports` + `/transactions/{stats,charts}` (tek ekranda segmentli) |
 | Tab: **Profil** | `/profile` (alt ekranlar: Hesap, Bütçe & Sabit Giderler, Cüzdanlar, Görünüm, Güvenlik, Veri, Hesabı Sil) |
 | Stack: Cüzdan detayı / Transfer | `/wallets/[id]`, wallets-list transfer dialog |
@@ -454,16 +457,16 @@ Mobil dashboard'u tasarlamadan önce bu tanımlar netleştirilmeli.
 
 ## 7. Yol Haritası
 
-| Faz | Kapsam | Çıktı |
-|---|---|---|
-| **0 — Karar & hazırlık** | §8'deki soruların cevaplanması; repo stratejisi; `core` modülünün çıkarılması (saf mantık + mevcut testler + §2.2'deki gömülü hesapların saf fonksiyona çevrilmesi); §5.3–5.6 düzeltmeleri `core`'da | Platformdan bağımsız, testli `core` |
-| **1 — Backend** | B1–B9, B11–B14 migration'ları doğrudan mevcut Supabase projesine (web dondurulmuş, §4 uyarısı); RLS entegrasyon testlerinin gerçekten çalıştırılması | Atomik, tutarlı veri katmanı |
-| **2 — İskelet** | Expo + Expo Router + NativeWind + TanStack Query + Supabase client; auth akışı (login/register/doğrulama deep link/parola sıfırlama); tema; tab bar + FAB; Sentry | Giriş yapıp boş tab'larda gezilebilen uygulama |
-| **3 — Çekirdek** | Dashboard (+ onboarding), işlem ekle/düzenle/sil, işlem listesi (ay, sayfalama, filtre), cüzdanlar + transfer + detay | Günlük kullanım için yeterli MVP |
-| **4 — Planlama** | Gelecek ödemeler (+ öde akışı), abonelikler (logo), sabit giderler, bütçe ayarları, profil + avatar + parola + **hesap silme** | Web ile özellik eşitliğinin büyük kısmı |
-| **5 — Analiz & araçlar** | İstatistik/grafikler, rapor + paylaş, banka dökümü içe aktarma, hesap bölüştürücü | Tam özellik eşitliği |
-| **6 — Mobil artıları** | Yerel bildirimler, biyometrik kilit, offline yazma kuyruğu, widget | Web'den daha iyi deneyim |
-| **7 — Yayın** | Store metinleri, gizlilik formları, ikon/splash, EAS submit, beta (TestFlight / internal testing) | Store'da uygulama |
+| Faz | Kapsam | Çıktı | Durum |
+|---|---|---|---|
+| **0 — Karar & hazırlık** | §8'deki soruların cevaplanması; repo stratejisi; `core` modülünün çıkarılması (saf mantık + mevcut testler + §2.2'deki gömülü hesapların saf fonksiyona çevrilmesi); §5.3–5.6 düzeltmeleri `core`'da | Platformdan bağımsız, testli `core` | ✅ `src/core` (58 test) |
+| **1 — Backend** | B1–B9, B11–B14 migration'ları doğrudan mevcut Supabase projesine (web dondurulmuş, §4 uyarısı); RLS entegrasyon testlerinin gerçekten çalıştırılması | Atomik, tutarlı veri katmanı | ✅ yazıldı + test edildi; projeye uygulanması bekliyor |
+| **2 — İskelet** | Expo + Expo Router + TanStack Query + Supabase client + i18n; auth akışı (login/register/doğrulama deep link/parola sıfırlama); tema; tab bar + FAB; Sentry | Giriş yapıp boş tab'larda gezilebilen uygulama | ✅ (Sentry ve yüzen "+" hariç) |
+| **3 — Çekirdek** | Dashboard (+ onboarding), işlem ekle/düzenle/sil, işlem listesi (ay, sayfalama, filtre), cüzdanlar + transfer + detay | Günlük kullanım için yeterli MVP | Sıradaki |
+| **4 — Planlama** | Gelecek ödemeler (+ öde akışı), abonelikler (logo), sabit giderler, bütçe ayarları, profil + avatar + parola + **hesap silme** | Web ile özellik eşitliğinin büyük kısmı | — |
+| **5 — Analiz & araçlar** | İstatistik/grafikler, rapor + paylaş, banka dökümü içe aktarma, hesap bölüştürücü | Tam özellik eşitliği | — |
+| **6 — Mobil artıları** | Yerel bildirimler, biyometrik kilit, offline yazma kuyruğu, widget | Web'den daha iyi deneyim | — |
+| **7 — Yayın** | Store metinleri, gizlilik formları, ikon/splash, EAS submit, beta (TestFlight / internal testing) | Store'da uygulama | — |
 
 ---
 
@@ -493,6 +496,8 @@ Mobil dashboard'u tasarlamadan önce bu tanımlar netleştirilmeli.
 1. **Para birimi modeli:** v1'de kullanıcı başına tek para birimi (önerilen). Cüzdan başına farklı para birimi + kur dönüşümü ileride mi?
 2. **İlk sürüm dilleri:** Türkçe + İngilizce (önerilen) mi, yalnız Türkçe mi?
 3. **Minimum OS sürümleri:** Expo SDK varsayılanları (önerilen) mi, daha eski cihaz desteği mi?
+4. **Uygulama kimliği:** iOS `bundleIdentifier` / Android `package` (ör. `com.unicebim.app`). Mağazaya ilk yüklemeden sonra değiştirilemez; native build öncesi belirlenmeli (`app.json`'da henüz yok).
+5. **Yasal metin adresleri:** Kayıt ekranındaki şartlar onayı ve mağaza formları için gizlilik politikası / kullanım şartları URL'leri (web dondurulduğu için nerede yayınlanacağı).
 
 ---
 
@@ -512,6 +517,10 @@ Mobil öncü platform olduğu için, web'i sonradan güncel hale getirmek gerekt
 | W8 | `core` modülü (§5.3–5.6 düzeltmeleri dahil) | `features/*`, `lib/*` saf dosyalar | `core` kopyalanır, eski dosyalar onu import eder | Bekliyor |
 | W9 | Parola değiştirmede mevcut parola doğrulaması (§5.4) | `actions/profile.ts` | Aynı düzeltme | Bekliyor |
 | W10 | Hesap silme (B10) | `/profile` | "Hesabı sil" butonu → Edge Function | Bekliyor |
+| W11 | Dil-bağımsız kategori kimlikleri (B16) | `features/transactions/categories.ts`, `category-meta.tsx`, `detect-category.ts`, grafik renkleri | Kimlikler + görünen ad için çeviri tablosu (`core/categories.ts` + `i18n`) | Bekliyor |
+| W12 | Profil bölge alanları + kayıt metadata'sı (B17) | `actions/auth.ts` `registerAction`, `formatTRY` kullanımları | Kayıtta `currency/timezone/locale/wallet_names` gönder; `formatMoney(currency, locale)` | Bekliyor |
+| W13 | `check_rate_limit` anon'a kapandı (B12) | `lib/security/rate-limit.ts` (login/register/resend anon çağırıyor) | Bu kapsamlar için rate limit'i Supabase Auth'un kendi limitlerine bırak veya service role ile çağır | Bekliyor |
+| W14 | Ay sınırları kullanıcının saat dilimine göre | `lib/month.ts` ve sayfalardaki UTC ay hesapları | `core/time.ts` `monthRange(ym, timeZone)` | Bekliyor |
 
 **Web'i yeniden canlıya alma sırası:** Veritabanı migration'ları zaten uygulanmış olacağından, web ancak W-satırları uygulandıktan sonra deploy edilir. Aksi halde web bakiyeyi iki kez işler ve eski transfer kodu yeni modelle çakışır.
 
