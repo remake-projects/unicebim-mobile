@@ -32,7 +32,13 @@ export const changePasswordSchema = z
   .refine((v) => v.newPassword === v.confirmPassword, { message: V.passwordsDontMatch, path: ['confirmPassword'] })
   .refine((v) => v.newPassword !== v.currentPassword, { message: V.passwordUnchanged, path: ['newPassword'] });
 
+/** Setting a new password after a reset link (no current password available). */
+export const newPasswordSchema = z
+  .object({ newPassword: password, confirmPassword: z.string() })
+  .refine((v) => v.newPassword === v.confirmPassword, { message: V.passwordsDontMatch, path: ['confirmPassword'] });
+
 export type LoginInput = z.output<typeof loginSchema>;
 export type RegisterFormInput = z.input<typeof registerSchema>;
 export type RegisterInput = z.output<typeof registerSchema>;
 export type ChangePasswordInput = z.output<typeof changePasswordSchema>;
+export type NewPasswordInput = z.output<typeof newPasswordSchema>;

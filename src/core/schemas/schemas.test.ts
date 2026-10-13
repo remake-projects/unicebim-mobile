@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { V } from '../validation';
-import { changePasswordSchema, registerSchema } from './auth';
+import { changePasswordSchema, newPasswordSchema, registerSchema } from './auth';
 import { makePaymentSchema } from './planning';
 import { budgetSettingsSchema } from './profile';
 import { transactionSchema } from './transaction';
@@ -77,5 +77,10 @@ describe('auth schemas', () => {
   it('rejects an unchanged password', () => {
     const r = changePasswordSchema.safeParse({ currentPassword: 'password1', newPassword: 'password1', confirmPassword: 'password1' });
     expect(codes(r)).toContain(V.passwordUnchanged);
+  });
+
+  it('requires a confirmed new password after a reset', () => {
+    expect(codes(newPasswordSchema.safeParse({ newPassword: 'password1', confirmPassword: 'password2' }))).toContain(V.passwordsDontMatch);
+    expect(codes(newPasswordSchema.safeParse({ newPassword: 'short', confirmPassword: 'short' }))).toContain(V.passwordTooShort);
   });
 });

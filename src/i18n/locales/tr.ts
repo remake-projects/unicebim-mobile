@@ -46,6 +46,11 @@ const tr = {
       submit: 'Bağlantı gönder',
       sent: 'Bu adresle bir hesap varsa sıfırlama bağlantısını gönderdik.',
     },
+    resetPassword: {
+      title: 'Yeni parola belirle',
+      newPassword: 'Yeni parola',
+      submit: 'Parolayı güncelle',
+    },
     callback: {
       confirming: 'Hesabın doğrulanıyor…',
       confirmedSignIn: 'E-postan doğrulandı. Şimdi giriş yapabilirsin.',

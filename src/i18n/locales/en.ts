@@ -47,6 +47,11 @@ const en: Translations = {
       submit: 'Send link',
       sent: 'If an account exists for this address, we sent a reset link.',
     },
+    resetPassword: {
+      title: 'Set a new password',
+      newPassword: 'New password',
+      submit: 'Update password',
+    },
     callback: {
       confirming: 'Confirming your account…',
       confirmedSignIn: 'Your email is confirmed. You can sign in now.',
