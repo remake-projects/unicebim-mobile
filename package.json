@@ -44,7 +44,8 @@
     "typecheck": "tsc --noEmit",
     "prepare": "husky",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "test:db": "bash scripts/test-migrations.sh"
   },
   "private": true
 }
