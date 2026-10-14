@@ -66,3 +66,8 @@ export function parseMoneyInput(input: unknown, locale?: string): number | null 
   if (!Number.isFinite(value)) return null;
   return negative ? -value : value;
 }
+
+/** Amount as editable text in the locale's decimal style ("12,5" in tr), no grouping. */
+export function formatMoneyInput(amount: number, locale?: string): string {
+  return new Intl.NumberFormat(locale, { useGrouping: false, maximumFractionDigits: 2 }).format(amount);
+}

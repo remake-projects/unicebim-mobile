@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { formatMoney, parseMoneyInput } from './money';
+import { formatMoney, formatMoneyInput, parseMoneyInput } from './money';
 
 describe('parseMoneyInput', () => {
   it.each([
@@ -39,5 +39,15 @@ describe('formatMoney', () => {
   it('formats with the given currency and locale', () => {
     expect(formatMoney(1500, { currency: 'USD', locale: 'en-US' })).toBe('$1,500');
     expect(formatMoney(12.5, { currency: 'EUR', locale: 'de-DE' }).replace(/\s/g, ' ')).toBe('12,5 €');
+  });
+});
+
+describe('formatMoneyInput', () => {
+  it('round-trips through parseMoneyInput in the same locale', () => {
+    expect(formatMoneyInput(1234.5, 'tr-TR')).toBe('1234,5');
+    expect(formatMoneyInput(1234.5, 'en-US')).toBe('1234.5');
+    for (const locale of ['tr-TR', 'en-US', 'de-DE']) {
+      expect(parseMoneyInput(formatMoneyInput(98765.43, locale), locale)).toBe(98765.43);
+    }
   });
 });
