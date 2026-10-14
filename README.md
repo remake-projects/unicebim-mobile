@@ -11,12 +11,12 @@ Expo (React Native) + Expo Router + Supabase.
 
 ```
 src/
-  app/          Expo Router ekranları (dosya = ekran); (auth) ve (tabs) korumalı gruplar
+  app/          Expo Router ekranları (dosya = ekran); (auth) oturumsuz, (app) oturumlu grup (tab'lar + modal formlar)
   core/         Platformdan bağımsız iş mantığı (kategoriler, para, saat dilimi, şemalar, hesaplamalar) — testli
-  features/     Özellik bazlı veri erişimi ve hook'lar (ör. auth)
+  features/     Özellik bazlı API modülleri, TanStack Query hook'ları ve bileşenler (auth, profile, wallets, transactions, dashboard)
   components/   UI bileşenleri (components/ui: form ve ekran primitifleri)
   i18n/         Türkçe + İngilizce çeviriler (tip kontrollü anahtarlar)
-  lib/          Supabase istemcisi, env, cihaz bölgesi, query client
+  lib/          Supabase istemcisi, env, cihaz bölgesi, query client + sorgu anahtarları, hata eşleme
   data/         Supabase veritabanı tipleri
 supabase/
   migrations/   Versiyonlu SQL migration'ları

@@ -288,15 +288,16 @@ supabase/migrations/         # SQL migration'lar (docs/supabase.sql'in yerini al
 |---|---|---|
 | Next.js App Router | **Expo + Expo Router** | dosya tabanlı route, deep link, typed routes |
 | Tailwind + shadcn/ui | `StyleSheet` + tema token'ları + kendi `components/ui` bileşenleri | NativeWind yerine (SDK 57 / RN 0.86 ile sürüm riski, ek build adımı); gerekirse ileride NativeWind/Uniwind değerlendirilir |
-| Radix Dialog/Sheet/Dropdown | `@gorhom/bottom-sheet`, native `Alert`/ActionSheet | |
-| `lucide-react` | `lucide-react-native` | aynı ikon adları (`category-meta.tsx` neredeyse aynen) |
+| Radix Dialog/Sheet/Dropdown | Expo Router `presentation: 'modal'` ekranları + native `Alert` | Formlar modal ekran (header'lı, iki platformda tutarlı); ek bottom-sheet kütüphanesi gerekmedi |
+| `lucide-react` | Kategorilerde emoji (`features/transactions/category-meta.ts`), tab'larda SF Symbols / Material ikonları | Ek ikon fontu yok; ileride `lucide-react-native` eklenebilir |
 | `motion` | `react-native-reanimated` | |
 | `recharts` | `victory-native` (Skia) veya `react-native-gifted-charts` | 6 grafik türü yeniden yazılır |
 | `sonner` | `sonner-native` veya `burnt` | |
 | `next-themes` | `useColorScheme` + kalıcı tema tercihi | |
 | `@supabase/ssr` | `@supabase/supabase-js` + `expo-sqlite/localStorage` (Expo'nun resmi Supabase rehberi) | `AppState` değişiminde `startAutoRefresh/stopAutoRefresh`; PKCE akışı |
 | `revalidatePath` / RSC | **TanStack Query** (cache, invalidation, optimistic update, offline persist) | |
-| `react-hook-form` + `zod` | aynen | RN `TextInput` ile `Controller` |
+| `react-hook-form` + `zod` | aynen | RN `TextInput` ile `useController` |
+| Tarih seçici | `@expo/ui/community/datetime-picker` | iOS'ta compact, Android'de Material dialog; değer her zaman `YYYY-MM-DD` |
 | `zustand` | aynen (UI state: seçili ay, tema, filtre) | |
 | `react-dropzone` | `expo-document-picker` | |
 | `xlsx`, `papaparse` | SheetJS + papaparse (cihazda) | npm'deki `xlsx@0.18.5` bakımsız ve bilinen açıkları var; SheetJS'in resmi dağıtımından güncel sürüm kullanılmalı |
@@ -341,7 +342,7 @@ Mobil istemci doğrudan DB'ye yazacağı için, bugün server action'ların "ell
 | B17 | `profiles`'a `currency` (ISO 4217, varsayılan `TRY`), `timezone` (IANA), `locale` kolonları; `subscriptions.currency` `TL` → `TRY` | Global hedef (§10) |
 | B18 | "Bugün"e bağlı hesaplar kullanıcının saat dilimiyle yapılsın | Uygulandı: `get_monthly_trends(p_months, p_tz)`. Ödemeler/abonelikler mobilde tabloya doğrudan, istemcinin "bugün"üyle sorgulanır; `current_date` kullanan eski RPC'ler yalnız web için duruyor |
 
-**Durum (2026-10-13):** B1–B8, B10–B14, B16–B18 `supabase/migrations/` + `supabase/functions/delete-account` olarak yazıldı ve `npm run test:db` ile lokal Postgres'te 47 davranış testiyle doğrulandı. Henüz yapılmayanlar: B9 (tek çağrılık dashboard RPC'si — ihtiyaç görülürse), B15 (push bildirimleri, Faz 6). Migration'lar Supabase projesine **henüz uygulanmadı**.
+**Durum (2026-10-13):** B1–B8, B10–B14, B16–B18 `supabase/migrations/` + `supabase/functions/delete-account` olarak yazıldı ve `npm run test:db` ile lokal Postgres'te 48 davranış testiyle doğrulandı (2026-10-14: `get_monthly_summary` cüzdan filtresi aldı; migration henüz hiçbir projeye uygulanmadığı için yerinde değiştirildi). Henüz yapılmayanlar: B9 (tek çağrılık dashboard RPC'si — Faz 3'te gerek görülmedi: ana sayfa 5 paralel, önbellekli sorgu kullanıyor), B15 (push bildirimleri, Faz 6). Migration'lar Supabase projesine **henüz uygulanmadı**.
 
 ---
 
@@ -414,8 +415,9 @@ Mobil dashboard'u tasarlamadan önce bu tanımlar netleştirilmeli.
 - Opsiyonel: biyometrik uygulama kilidi (`expo-local-authentication`) — finans uygulaması için beklenen bir özellik.
 
 ### 6.2 Veri katmanı
-- TanStack Query anahtar şeması: `['dashboard', ym]`, `['transactions', ym, filters]` (infinite query, `get_transactions_page` cursor'u), `['wallets']`, `['payments']`, `['subscriptions']`, `['profile']`.
-- Mutasyonlarda `revalidatePath` yerine ilgili anahtarları invalidate et; işlem ekleme için optimistic update (FAB akışının hızlı hissettirmesi için önemli).
+- TanStack Query anahtarları tek yerde: `src/lib/query-keys.ts`. İşlem/transfer yazan her mutasyon `invalidateLedger()` ile `['ledger', …]` altındaki tüm görünümleri (ay özeti, kategori toplamları, listeler, son işlemler) ve `['wallets']` bakiyelerini birlikte tazeler.
+- İşlem listesi `get_transactions_page` RPC'si yerine doğrudan PostgREST sorgusu: `(date, id)` keyset sayfalama + tür/cüzdan filtresi (RPC filtre almıyordu ve `wallet_id`/`kind` döndürmüyordu). RPC web için yerinde duruyor.
+- Optimistic update henüz yok: form kaydedince modal kapanır, liste invalidation ile tazelenir. Gerçek cihazda yavaş hissettirirse eklenecek (bakiye yetersizse sunucu reddettiği için geri alma mantığı gerekir).
 - Offline: v1'de query cache persist + "çevrimdışısın" bandı yeterli; yazma kuyruğu (offline mutation) Faz 5.
 
 ### 6.3 Ekran haritası (web → mobil)
@@ -462,8 +464,8 @@ Mobil dashboard'u tasarlamadan önce bu tanımlar netleştirilmeli.
 | **0 — Karar & hazırlık** | §8'deki soruların cevaplanması; repo stratejisi; `core` modülünün çıkarılması (saf mantık + mevcut testler + §2.2'deki gömülü hesapların saf fonksiyona çevrilmesi); §5.3–5.6 düzeltmeleri `core`'da | Platformdan bağımsız, testli `core` | ✅ `src/core` (58 test) |
 | **1 — Backend** | B1–B9, B11–B14 migration'ları doğrudan mevcut Supabase projesine (web dondurulmuş, §4 uyarısı); RLS entegrasyon testlerinin gerçekten çalıştırılması | Atomik, tutarlı veri katmanı | ✅ yazıldı + test edildi; projeye uygulanması bekliyor |
 | **2 — İskelet** | Expo + Expo Router + TanStack Query + Supabase client + i18n; auth akışı (login/register/doğrulama deep link/parola sıfırlama); tema; tab bar + FAB; Sentry | Giriş yapıp boş tab'larda gezilebilen uygulama | ✅ (Sentry ve yüzen "+" hariç) |
-| **3 — Çekirdek** | Dashboard (+ onboarding), işlem ekle/düzenle/sil, işlem listesi (ay, sayfalama, filtre), cüzdanlar + transfer + detay | Günlük kullanım için yeterli MVP | Sıradaki |
-| **4 — Planlama** | Gelecek ödemeler (+ öde akışı), abonelikler (logo), sabit giderler, bütçe ayarları, profil + avatar + parola + **hesap silme** | Web ile özellik eşitliğinin büyük kısmı | — |
+| **3 — Çekirdek** | Dashboard (+ onboarding), işlem ekle/düzenle/sil, işlem listesi (ay, sayfalama, filtre), cüzdanlar + transfer + detay | Günlük kullanım için yeterli MVP | ✅ (cihazda denenmedi; optimistic update yok) |
+| **4 — Planlama** | Gelecek ödemeler (+ öde akışı), abonelikler (logo), sabit giderler, bütçe ayarları, profil + avatar + parola + **hesap silme** | Web ile özellik eşitliğinin büyük kısmı | Sıradaki |
 | **5 — Analiz & araçlar** | İstatistik/grafikler, rapor + paylaş, banka dökümü içe aktarma, hesap bölüştürücü | Tam özellik eşitliği | — |
 | **6 — Mobil artıları** | Yerel bildirimler, biyometrik kilit, offline yazma kuyruğu, widget | Web'den daha iyi deneyim | — |
 | **7 — Yayın** | Store metinleri, gizlilik formları, ikon/splash, EAS submit, beta (TestFlight / internal testing) | Store'da uygulama | — |
@@ -521,6 +523,8 @@ Mobil öncü platform olduğu için, web'i sonradan güncel hale getirmek gerekt
 | W12 | Profil bölge alanları + kayıt metadata'sı (B17) | `actions/auth.ts` `registerAction`, `formatTRY` kullanımları | Kayıtta `currency/timezone/locale/wallet_names` gönder; `formatMoney(currency, locale)` | Bekliyor |
 | W13 | `check_rate_limit` anon'a kapandı (B12) | `lib/security/rate-limit.ts` (login/register/resend anon çağırıyor) | Bu kapsamlar için rate limit'i Supabase Auth'un kendi limitlerine bırak veya service role ile çağır | Bekliyor |
 | W14 | Ay sınırları kullanıcının saat dilimine göre | `lib/month.ts` ve sayfalardaki UTC ay hesapları | `core/time.ts` `monthRange(ym, timeZone)` | Bekliyor |
+| W15 | `get_monthly_summary` opsiyonel `p_wallet_id` aldı | `/wallets/[id]` (cüzdan özeti bellekte hesaplanıyor) | Özet için RPC'yi cüzdan filtresiyle çağır. Mevcut 2 argümanlı çağrılar değişmeden çalışır | Bekliyor |
+| W16 | Dashboard formülleri `core/dashboard.ts` `buildDashboard` | `dashboard/page.tsx` (sayfa içi hesaplar, §5.7) | Sayfa sorguları `buildDashboard`'a verir; harcanabilir = cüzdanlar − ödenmemiş ödemeler | Bekliyor |
 
 **Web'i yeniden canlıya alma sırası:** Veritabanı migration'ları zaten uygulanmış olacağından, web ancak W-satırları uygulandıktan sonra deploy edilir. Aksi halde web bakiyeyi iki kez işler ve eski transfer kodu yeni modelle çakışır.
 
