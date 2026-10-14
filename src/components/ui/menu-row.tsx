@@ -1,0 +1,48 @@
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+
+import { Spacing } from '@/constants/theme';
+import { useTheme } from '@/hooks/use-theme';
+
+type Props = {
+  title: string;
+  subtitle?: string;
+  /** Right-aligned value, e.g. a balance. */
+  detail?: string;
+  onPress?: () => void;
+  tone?: 'default' | 'danger';
+};
+
+/** Tappable list row with an optional subtitle and trailing detail. */
+export function MenuRow({ title, subtitle, detail, onPress, tone = 'default' }: Props) {
+  const theme = useTheme();
+  return (
+    <Pressable
+      accessibilityRole={onPress ? 'button' : undefined}
+      disabled={!onPress}
+      onPress={onPress}
+      style={({ pressed }) => [styles.row, { borderColor: theme.border, opacity: pressed ? 0.7 : 1 }]}>
+      <View style={styles.text}>
+        <Text style={[styles.title, { color: tone === 'danger' ? theme.danger : theme.text }]}>{title}</Text>
+        {subtitle ? <Text style={[styles.subtitle, { color: theme.textSecondary }]}>{subtitle}</Text> : null}
+      </View>
+      {detail ? <Text style={[styles.detail, { color: theme.text }]}>{detail}</Text> : null}
+      {onPress ? <Text style={[styles.chevron, { color: theme.textSecondary }]}>›</Text> : null}
+    </Pressable>
+  );
+}
+
+const styles = StyleSheet.create({
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.two,
+    minHeight: 56,
+    paddingVertical: Spacing.two,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+  },
+  text: { flex: 1, gap: Spacing.half },
+  title: { fontSize: 16, fontWeight: 500 },
+  subtitle: { fontSize: 13 },
+  detail: { fontSize: 16, fontWeight: 600, fontVariant: ['tabular-nums'] },
+  chevron: { fontSize: 22 },
+});

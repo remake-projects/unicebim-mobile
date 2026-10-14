@@ -1,21 +1,33 @@
 import type { PropsWithChildren } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { KeyboardAvoidingView, Platform, RefreshControl, ScrollView, StyleSheet } from 'react-native';
+import { SafeAreaView, type Edge } from 'react-native-safe-area-context';
 
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
-type Props = PropsWithChildren<{ centered?: boolean }>;
+type Props = PropsWithChildren<{
+  centered?: boolean;
+  /** Screens shown under a native header (stack screens, modals) skip the top inset. */
+  edges?: readonly Edge[];
+  /** Extra bottom space, e.g. for a floating button. */
+  bottomInset?: number;
+  /** Enables pull to refresh. */
+  onRefresh?: () => void;
+  refreshing?: boolean;
+}>;
 
 /** Scrollable, keyboard-aware screen container with safe-area padding. */
-export function Screen({ children, centered = false }: Props) {
+const DEFAULT_EDGES: readonly Edge[] = ['top', 'left', 'right'];
+
+export function Screen({ children, centered = false, edges = DEFAULT_EDGES, bottomInset = 0, onRefresh, refreshing = false }: Props) {
   const theme = useTheme();
   return (
-    <SafeAreaView style={[styles.flex, { backgroundColor: theme.background }]} edges={['top', 'left', 'right']}>
+    <SafeAreaView style={[styles.flex, { backgroundColor: theme.background }]} edges={edges}>
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <ScrollView
-          contentContainerStyle={[styles.content, centered && styles.centered]}
-          keyboardShouldPersistTaps="handled">
+          contentContainerStyle={[styles.content, centered && styles.centered, { paddingBottom: Spacing.four + bottomInset }]}
+          keyboardShouldPersistTaps="handled"
+          refreshControl={onRefresh ? <RefreshControl refreshing={refreshing} onRefresh={onRefresh} /> : undefined}>
           {children}
         </ScrollView>
       </KeyboardAvoidingView>
