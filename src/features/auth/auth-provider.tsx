@@ -35,3 +35,10 @@ export function useAuth(): AuthState {
   if (!value) throw new Error('useAuth must be used inside <AuthProvider>');
   return value;
 }
+
+/** The signed-in user's id. Only call from screens behind the session guard. */
+export function useUserId(): string {
+  const { session } = useAuth();
+  if (!session) throw new Error('useUserId requires a signed-in user');
+  return session.user.id;
+}
