@@ -320,6 +320,8 @@ Mobil istemci doğrudan DB'ye yazacağı için, bugün server action'ların "ell
 > - Migration'lar **doğrudan mevcut Supabase projesine** uygulanabilir; ayrı staging projesine gerek yok. Korunacak gerçek kullanıcı verisi olmadığı için web'i bozmanın bir bedeli yok.
 > - Migration'lar yine de `supabase/migrations/` altında versiyonlu tutulur; web yeniden canlıya alınmadan önce §9'daki aktarım listesi uygulanır.
 > - İleride gerçek kullanıcı geldiğinde (mobil yayına çıkınca) ayrı bir dev/staging projesine geçilir; o noktadan sonra production'a doğrudan migration denenmez.
+>
+> **Güncelleme (2026-10-14):** Proje fork'la devralındı; web'in bağlı olduğu Supabase projesine erişim yok. Mobil için **yeni, boş bir Supabase projesi** açılır ve migration'lar oraya uygulanır (taşınacak veri yok). Yeni projede elle yapılması gerekenler: Auth yönlendirme adresleri (`unicebim://auth/callback`, Expo Go için `exp://**`), `delete-account` fonksiyonunun deploy'u; `avatars` storage bucket'ı Faz 4'te migration olarak eklenir (web'de elle kurulmuştu). Ücretsiz plandaki varsayılan e-posta gönderimi saatte birkaç e-postayla sınırlı; yayın öncesi özel SMTP gerekir.
 
 | # | Değişiklik | Neden |
 |---|---|---|
@@ -482,6 +484,7 @@ Mobil dashboard'u tasarlamadan önce bu tanımlar netleştirilmeli.
 | 2026-10-13 | **Web yaşamaya devam ediyor**, ama öncü platform mobil; değişiklikler gerekirse sonradan web'e aktarılıp öyle deploy edilir | §3.3, §4 uyarısı, §9 |
 | 2026-10-13 | Repo: bu repo saf mobil uygulamaya dönüşür, web orijinal repoda kalır (monorepo yok); `core` platformdan bağımsız tutulur | §3.3 |
 | 2026-10-13 | Web canlıda değil, kullanıcı yok → web dondurulur, migration'lar doğrudan mevcut Supabase projesine uygulanır; mobil yayına çıkınca dev/staging ayrımı kurulur | §4 uyarısı |
+| 2026-10-14 | Eski Supabase projesine erişim yok (fork ile devralındı) → mobil için yeni Supabase projesi açılır | §4 uyarısı |
 
 | 2026-10-13 | Cüzdan bakiyesi **eksiye düşemez** (`CHECK (balance >= 0)` korunur); yetersiz bakiyede işlem net hata ile reddedilir | B1/B2 |
 | 2026-10-13 | Transfer: `transactions` içinde `kind = 'transfer'` + ortak `transfer_group_id` ile iki kayıt; istatistiklerde sayılmaz | B3/B4 |
