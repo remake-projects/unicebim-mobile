@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { V } from '../validation';
 import { changePasswordSchema, newPasswordSchema, registerSchema } from './auth';
 import { makePaymentSchema } from './planning';
-import { budgetSettingsSchema } from './profile';
+import { budgetSettingsSchema, onboardingSchema } from './profile';
 import { transactionSchema } from './transaction';
 import { transferSchema } from './wallet';
 
@@ -82,5 +82,16 @@ describe('auth schemas', () => {
   it('requires a confirmed new password after a reset', () => {
     expect(codes(newPasswordSchema.safeParse({ newPassword: 'password1', confirmPassword: 'password2' }))).toContain(V.passwordsDontMatch);
     expect(codes(newPasswordSchema.safeParse({ newPassword: 'short', confirmPassword: 'short' }))).toContain(V.passwordTooShort);
+  });
+});
+
+describe('onboardingSchema', () => {
+  it('requires a budget goal and accepts empty optional fields', () => {
+    expect(onboardingSchema.safeParse({ monthlyBudgetGoal: '', nextIncomeDate: '', mealPrice: '' }).success).toBe(false);
+    expect(onboardingSchema.parse({ monthlyBudgetGoal: '4500', nextIncomeDate: '', mealPrice: '' })).toEqual({
+      monthlyBudgetGoal: 4500,
+      nextIncomeDate: null,
+      mealPrice: null,
+    });
   });
 });

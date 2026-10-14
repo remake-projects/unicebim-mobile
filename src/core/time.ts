@@ -181,3 +181,16 @@ export function transactionInstantForDate(ymd: Ymd, timeZone: string, now: Date 
   const [year, month, day] = ymd.split('-').map(Number) as [number, number, number];
   return zonedWallClockToInstant({ year, month, day, hour: 12, minute: 0, second: 0 }, timeZone);
 }
+
+/**
+ * Display a calendar date. The date is formatted as-is (no time-zone shift), so a
+ * `YYYY-MM-DD` always shows the same day on every device.
+ */
+export function formatYmd(ymd: Ymd, locale: string, options: Intl.DateTimeFormatOptions = { dateStyle: 'medium' }): string {
+  return new Intl.DateTimeFormat(locale, { ...options, timeZone: 'UTC' }).format(new Date(ymdToUtcMs(ymd)));
+}
+
+/** Display a month, e.g. "October 2026" / "Ekim 2026". */
+export function formatYearMonth(ym: YearMonth, locale: string): string {
+  return formatYmd(`${ym}-01`, locale, { month: 'long', year: 'numeric' });
+}
