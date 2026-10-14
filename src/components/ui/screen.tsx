@@ -18,6 +18,8 @@ type Props = PropsWithChildren<{
 
 /** Scrollable, keyboard-aware screen container with safe-area padding. */
 const DEFAULT_EDGES: readonly Edge[] = ['top', 'left', 'right'];
+/** For screens under a native header (stack screens, modals): the header covers the top. */
+export const UNDER_HEADER_EDGES: readonly Edge[] = ['left', 'right'];
 
 export function Screen({ children, centered = false, edges = DEFAULT_EDGES, bottomInset = 0, onRefresh, refreshing = false }: Props) {
   const theme = useTheme();

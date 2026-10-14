@@ -4,7 +4,6 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
 import { useColorScheme } from 'react-native';
 
 import { AuthProvider, useAuth } from '@/features/auth/auth-provider';
@@ -25,7 +24,6 @@ export default function RootLayout() {
 function RootNavigator() {
   const { session, isLoading } = useAuth();
   const colorScheme = useColorScheme();
-  const { t } = useTranslation();
 
   useEffect(() => {
     if (!isLoading) SplashScreen.hideAsync();
@@ -38,11 +36,7 @@ function RootNavigator() {
       <Stack screenOptions={{ headerShown: false }}>
         {/* Signed in */}
         <Stack.Protected guard={!!session}>
-          <Stack.Screen name="(tabs)" />
-          <Stack.Screen
-            name="reset-password"
-            options={{ headerShown: true, title: t('auth.resetPassword.title'), presentation: 'modal' }}
-          />
+          <Stack.Screen name="(app)" />
         </Stack.Protected>
 
         {/* Signed out */}

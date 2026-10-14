@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { FormMessage } from '@/components/ui/form-message';
 import { FormTextField } from '@/components/ui/form-text-field';
-import { Screen } from '@/components/ui/screen';
+import { Screen, UNDER_HEADER_EDGES } from '@/components/ui/screen';
 import { newPasswordSchema, type NewPasswordInput } from '@/core/schemas/auth';
 import { updatePassword } from '@/features/auth/auth-api';
 import { errorMessage } from '@/i18n/messages';
@@ -31,7 +31,7 @@ export default function ResetPasswordScreen() {
   });
 
   return (
-    <Screen>
+    <Screen edges={UNDER_HEADER_EDGES}>
       <FormTextField
         control={control}
         name="newPassword"
