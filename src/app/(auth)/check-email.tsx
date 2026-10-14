@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { FormMessage } from '@/components/ui/form-message';
 import { Screen } from '@/components/ui/screen';
 import { resendConfirmation } from '@/features/auth/auth-api';
-import { AuthFailure } from '@/features/auth/auth-errors';
+import { errorMessage } from '@/i18n/messages';
 
 export default function CheckEmailScreen() {
   const { t } = useTranslation();
@@ -22,7 +22,7 @@ export default function CheckEmailScreen() {
       await resendConfirmation(email);
       setMessage({ text: t('auth.checkEmail.resent'), tone: 'info' });
     } catch (error) {
-      setMessage({ text: t(`errors.${error instanceof AuthFailure ? error.key : 'generic'}`), tone: 'error' });
+      setMessage({ text: errorMessage(t, error), tone: 'error' });
     } finally {
       setSending(false);
     }

@@ -11,7 +11,7 @@ import { FormTextField } from '@/components/ui/form-text-field';
 import { Screen } from '@/components/ui/screen';
 import { resetPasswordRequestSchema } from '@/core/schemas/auth';
 import { requestPasswordReset } from '@/features/auth/auth-api';
-import { AuthFailure } from '@/features/auth/auth-errors';
+import { errorMessage } from '@/i18n/messages';
 
 type Values = z.output<typeof resetPasswordRequestSchema>;
 
@@ -29,7 +29,7 @@ export default function ForgotPasswordScreen() {
       await requestPasswordReset(email);
       setMessage({ text: t('auth.forgotPassword.sent'), tone: 'info' });
     } catch (error) {
-      setMessage({ text: t(`errors.${error instanceof AuthFailure ? error.key : 'generic'}`), tone: 'error' });
+      setMessage({ text: errorMessage(t, error), tone: 'error' });
     }
   });
 

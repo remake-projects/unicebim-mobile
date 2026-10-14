@@ -1,7 +1,11 @@
 import { isAuthError, isAuthRetryableFetchError } from '@supabase/supabase-js';
 
-/** Keys under `errors.*` in the locales. */
-export type AuthErrorKey = 'invalidCredentials' | 'emailNotConfirmed' | 'rateLimited' | 'network' | 'generic';
+import { AppError, type ErrorKey } from '@/lib/app-error';
+
+export type AuthErrorKey = Extract<
+  ErrorKey,
+  'invalidCredentials' | 'emailNotConfirmed' | 'rateLimited' | 'network' | 'generic'
+>;
 
 export function toAuthErrorKey(error: unknown): AuthErrorKey {
   if (isAuthRetryableFetchError(error)) return 'network';
@@ -19,8 +23,4 @@ export function toAuthErrorKey(error: unknown): AuthErrorKey {
   }
 }
 
-export class AuthFailure extends Error {
-  constructor(readonly key: AuthErrorKey) {
-    super(key);
-  }
-}
+export class AuthFailure extends AppError<AuthErrorKey> {}

@@ -12,8 +12,7 @@ import { FormTextField } from '@/components/ui/form-text-field';
 import { Screen } from '@/components/ui/screen';
 import { registerSchema, type RegisterFormInput, type RegisterInput } from '@/core/schemas/auth';
 import { signUp } from '@/features/auth/auth-api';
-import { AuthFailure } from '@/features/auth/auth-errors';
-import { validationMessage } from '@/i18n/messages';
+import { errorMessage, validationMessage } from '@/i18n/messages';
 import { getDeviceRegion } from '@/lib/region';
 
 export default function SignUpScreen() {
@@ -37,7 +36,7 @@ export default function SignUpScreen() {
       }
       // Otherwise a session exists and the root guard opens the app.
     } catch (error) {
-      setServerError(t(`errors.${error instanceof AuthFailure ? error.key : 'generic'}`));
+      setServerError(errorMessage(t, error));
     }
   });
 

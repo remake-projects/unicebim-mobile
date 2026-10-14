@@ -10,7 +10,7 @@ import { FormTextField } from '@/components/ui/form-text-field';
 import { Screen } from '@/components/ui/screen';
 import { newPasswordSchema, type NewPasswordInput } from '@/core/schemas/auth';
 import { updatePassword } from '@/features/auth/auth-api';
-import { AuthFailure } from '@/features/auth/auth-errors';
+import { errorMessage } from '@/i18n/messages';
 
 export default function ResetPasswordScreen() {
   const { t } = useTranslation();
@@ -26,7 +26,7 @@ export default function ResetPasswordScreen() {
       await updatePassword(newPassword);
       router.replace('/');
     } catch (error) {
-      setServerError(t(`errors.${error instanceof AuthFailure ? error.key : 'generic'}`));
+      setServerError(errorMessage(t, error));
     }
   });
 
