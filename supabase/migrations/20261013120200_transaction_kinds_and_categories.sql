@@ -52,9 +52,13 @@ create unique index if not exists transactions_user_import_hash_uidx
   on public.transactions (user_id, import_hash) where import_hash is not null;
 
 -- Statistics RPCs: ignore transfers; fixed costs are the 'bills' category.
+-- get_monthly_summary gains an optional wallet filter (wallet detail screen).
+drop function if exists public.get_monthly_summary(timestamptz, timestamptz);
+
 create or replace function public.get_monthly_summary(
   p_start timestamptz,
-  p_end timestamptz
+  p_end timestamptz,
+  p_wallet_id uuid default null
 )
 returns table (
   income_total numeric,
@@ -76,9 +80,13 @@ as $$
   from public.transactions
   where user_id = auth.uid()
     and kind = 'normal'
+    and (p_wallet_id is null or wallet_id = p_wallet_id)
     and date >= p_start
     and date < p_end;
 $$;
+
+revoke all on function public.get_monthly_summary(timestamptz, timestamptz, uuid) from public, anon;
+grant execute on function public.get_monthly_summary(timestamptz, timestamptz, uuid) to authenticated;
 
 create or replace function public.get_expense_category_totals(
   p_start timestamptz,

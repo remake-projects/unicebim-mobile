@@ -139,7 +139,7 @@ export type Database = {
     Views: { [_ in never]: never };
     Functions: {
       get_monthly_summary: {
-        Args: { p_start: string; p_end: string };
+        Args: { p_start: string; p_end: string; p_wallet_id?: string | null };
         Returns: { income_total: number; expense_total: number; net_total: number; fixed_expenses_paid: number }[];
       };
       get_expense_category_totals: {

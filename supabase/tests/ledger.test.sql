@@ -130,6 +130,10 @@ select pg_temp.assert(
    from get_monthly_summary(now() - interval '1 day', now() + interval '1 day')),
   'monthly summary ignores transfers');
 select pg_temp.assert(
+  (select income_total = 500 and expense_total = 300
+   from get_monthly_summary(now() - interval '1 day', now() + interval '1 day', (select bank from _w))),
+  'monthly summary can be limited to one wallet');
+select pg_temp.assert(
   (select array_agg(category) = array['food'] from get_expense_category_totals(now() - interval '1 day', now() + interval '1 day')),
   'category totals ignore transfers');
 
