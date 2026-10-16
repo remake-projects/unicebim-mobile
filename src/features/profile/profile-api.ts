@@ -39,18 +39,59 @@ export async function fetchProfile(userId: string): Promise<Profile> {
   return toProfile(unwrap(await supabase.from('profiles').select('*').eq('id', userId).single()));
 }
 
-export async function updateBudgetSettings(userId: string, input: BudgetSettingsInput): Promise<Profile> {
-  const row = unwrap(
-    await supabase
-      .from('profiles')
-      .update({
-        monthly_budget_goal: input.monthlyBudgetGoal,
-        next_income_date: input.nextIncomeDate,
-        meal_price: input.mealPrice,
-      })
-      .eq('id', userId)
-      .select('*')
-      .single()
-  );
-  return toProfile(row);
+async function updateProfile(userId: string, columns: Database['public']['Tables']['profiles']['Update']): Promise<Profile> {
+  return toProfile(unwrap(await supabase.from('profiles').update(columns).eq('id', userId).select('*').single()));
+}
+
+export function updateBudgetSettings(userId: string, input: BudgetSettingsInput): Promise<Profile> {
+  return updateProfile(userId, {
+    monthly_budget_goal: input.monthlyBudgetGoal,
+    next_income_date: input.nextIncomeDate,
+    meal_price: input.mealPrice,
+  });
+}
+
+export function updateFullName(userId: string, fullName: string): Promise<Profile> {
+  return updateProfile(userId, { full_name: fullName });
+}
+
+const AVATAR_BUCKET = 'avatars';
+
+/** Storage path ("{user_id}/{file}") of an avatar's public URL, or null for other URLs. */
+function avatarPath(url: string): string | null {
+  const marker = `/object/public/${AVATAR_BUCKET}/`;
+  const index = url.indexOf(marker);
+  return index < 0 ? null : decodeURIComponent(url.slice(index + marker.length).split('?')[0] ?? '');
+}
+
+/** Best effort: a leftover file is harmless (deleting the account empties the folder). */
+async function removeAvatarFile(url: string | null): Promise<void> {
+  const path = url && avatarPath(url);
+  if (path) await supabase.storage.from(AVATAR_BUCKET).remove([path]);
+}
+
+/**
+ * Uploads a local JPEG as the new avatar, points the profile at it and removes the previous file.
+ * Each upload gets a new name, so cached copies of the old picture are never shown for the new one.
+ */
+export async function uploadAvatar(userId: string, fileUri: string, previousUrl: string | null): Promise<Profile> {
+  const body = await fetch(fileUri).then((r) => r.arrayBuffer());
+  const path = `${userId}/${Date.now()}.jpg`;
+  const bucket = supabase.storage.from(AVATAR_BUCKET);
+  unwrap(await bucket.upload(path, body, { contentType: 'image/jpeg' }));
+  let profile: Profile;
+  try {
+    profile = await updateProfile(userId, { avatar_url: bucket.getPublicUrl(path).data.publicUrl });
+  } catch (error) {
+    await bucket.remove([path]);
+    throw error;
+  }
+  await removeAvatarFile(previousUrl);
+  return profile;
+}
+
+export async function removeAvatar(userId: string, previousUrl: string | null): Promise<Profile> {
+  const profile = await updateProfile(userId, { avatar_url: null });
+  await removeAvatarFile(previousUrl);
+  return profile;
 }

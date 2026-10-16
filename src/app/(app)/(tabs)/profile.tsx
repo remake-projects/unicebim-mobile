@@ -1,24 +1,30 @@
-import { router } from 'expo-router';
+import { router, type Href } from 'expo-router';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { ThemedText } from '@/components/themed-text';
+import { Avatar } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { ConfirmButton } from '@/components/ui/confirm-button';
 import { FormMessage } from '@/components/ui/form-message';
 import { MenuRow } from '@/components/ui/menu-row';
 import { Screen } from '@/components/ui/screen';
-import { signOut } from '@/features/auth/auth-api';
+import { SectionHeader } from '@/components/ui/section-header';
+import { Spacing } from '@/constants/theme';
+import { deleteAccount, signOut } from '@/features/auth/auth-api';
 import { useAuth } from '@/features/auth/auth-provider';
 import { useProfile } from '@/features/profile/use-profile';
+import { useTheme } from '@/hooks/use-theme';
 import { errorMessage } from '@/i18n/messages';
 
 export default function ProfileScreen() {
   const { t } = useTranslation();
+  const theme = useTheme();
   const { session } = useAuth();
   const profile = useProfile();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const open = (href: Href) => () => router.push(href);
 
   async function onSignOut() {
     setBusy(true);
@@ -33,15 +39,48 @@ export default function ProfileScreen() {
 
   return (
     <Screen>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={t('profile.edit')}
+        onPress={open('/settings/profile')}
+        style={({ pressed }) => [styles.header, { opacity: pressed ? 0.7 : 1 }]}>
+        <Avatar uri={profile.data?.avatarUrl ?? null} name={profile.data?.fullName ?? null} size={64} />
+        <View style={styles.headerText}>
+          <Text style={[styles.name, { color: theme.text }]}>{profile.data?.fullName ?? t('tabs.profile')}</Text>
+          <Text style={{ color: theme.textSecondary }}>{session?.user.email}</Text>
+        </View>
+      </Pressable>
+
+      <SectionHeader title={t('profile.planning')} />
       <View>
-        <ThemedText type="subtitle">{profile.data?.fullName ?? t('tabs.profile')}</ThemedText>
-        <ThemedText themeColor="textSecondary">{session?.user.email}</ThemedText>
+        <MenuRow title={t('wallets.title')} subtitle={t('wallets.subtitle')} onPress={open('/wallets')} />
+        <MenuRow title={t('payments.title')} subtitle={t('payments.subtitle')} onPress={open('/payments')} />
+        <MenuRow title={t('subscriptions.title')} subtitle={t('subscriptions.subtitle')} onPress={open('/subscriptions')} />
+        <MenuRow title={t('fixedExpenses.title')} subtitle={t('fixedExpenses.subtitle')} onPress={open('/fixed-expenses')} />
+        <MenuRow title={t('budget.title')} subtitle={t('budget.subtitle')} onPress={open('/settings/budget')} />
       </View>
+
+      <SectionHeader title={t('profile.account')} />
       <View>
-        <MenuRow title={t('wallets.title')} subtitle={t('wallets.subtitle')} onPress={() => router.push('/wallets')} />
+        <MenuRow title={t('profile.edit')} subtitle={t('profile.editSubtitle')} onPress={open('/settings/profile')} />
+        <MenuRow title={t('profile.changePassword')} onPress={open('/settings/password')} />
       </View>
+
       <FormMessage message={error} />
       <Button variant="secondary" title={t('auth.signOut')} loading={busy} onPress={onSignOut} />
+      <ConfirmButton
+        title={t('profile.deleteAccount')}
+        confirmTitle={t('profile.deleteAccountTitle')}
+        confirmMessage={t('profile.deleteAccountMessage')}
+        confirmLabel={t('profile.deleteAccountConfirm')}
+        onConfirm={deleteAccount}
+      />
     </Screen>
   );
 }
+
+const styles = StyleSheet.create({
+  header: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three },
+  headerText: { flex: 1, gap: Spacing.half },
+  name: { fontSize: 22, fontWeight: 700 },
+});

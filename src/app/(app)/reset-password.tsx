@@ -1,6 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
-import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 
@@ -10,24 +9,17 @@ import { FormTextField } from '@/components/ui/form-text-field';
 import { Screen, UNDER_HEADER_EDGES } from '@/components/ui/screen';
 import { newPasswordSchema, type NewPasswordInput } from '@/core/schemas/auth';
 import { updatePassword } from '@/features/auth/auth-api';
-import { errorMessage } from '@/i18n/messages';
+import { useFormSubmit } from '@/hooks/use-form-submit';
 
 export default function ResetPasswordScreen() {
   const { t } = useTranslation();
-  const [serverError, setServerError] = useState<string | null>(null);
+  const { error, submit } = useFormSubmit(async ({ newPassword }: NewPasswordInput) => {
+    await updatePassword(newPassword);
+    router.replace('/');
+  });
   const { control, handleSubmit, formState } = useForm<NewPasswordInput>({
     resolver: zodResolver(newPasswordSchema),
     defaultValues: { newPassword: '', confirmPassword: '' },
-  });
-
-  const onSubmit = handleSubmit(async ({ newPassword }) => {
-    setServerError(null);
-    try {
-      await updatePassword(newPassword);
-      router.replace('/');
-    } catch (error) {
-      setServerError(errorMessage(t, error));
-    }
   });
 
   return (
@@ -48,8 +40,8 @@ export default function ResetPasswordScreen() {
         autoComplete="new-password"
         textContentType="newPassword"
       />
-      <FormMessage message={serverError} />
-      <Button title={t('auth.resetPassword.submit')} loading={formState.isSubmitting} onPress={onSubmit} />
+      <FormMessage message={error} />
+      <Button title={t('auth.resetPassword.submit')} loading={formState.isSubmitting} onPress={handleSubmit(submit)} />
     </Screen>
   );
 }

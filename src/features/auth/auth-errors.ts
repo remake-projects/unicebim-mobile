@@ -4,7 +4,7 @@ import { AppError, type ErrorKey } from '@/lib/app-error';
 
 export type AuthErrorKey = Extract<
   ErrorKey,
-  'invalidCredentials' | 'emailNotConfirmed' | 'rateLimited' | 'network' | 'generic'
+  'invalidCredentials' | 'wrongPassword' | 'emailNotConfirmed' | 'rateLimited' | 'network' | 'generic'
 >;
 
 export function toAuthErrorKey(error: unknown): AuthErrorKey {

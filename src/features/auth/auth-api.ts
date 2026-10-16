@@ -1,7 +1,8 @@
-import { isAuthPKCECodeVerifierMissingError } from '@supabase/supabase-js';
+import { FunctionsFetchError, isAuthPKCECodeVerifierMissingError } from '@supabase/supabase-js';
 import * as Linking from 'expo-linking';
 
-import type { LoginInput, RegisterInput } from '@/core/schemas/auth';
+import type { ChangePasswordInput, LoginInput, RegisterInput } from '@/core/schemas/auth';
+import { AppError } from '@/lib/app-error';
 import type { DeviceRegion } from '@/lib/region';
 import { supabase } from '@/lib/supabase';
 import { AuthFailure, toAuthErrorKey } from './auth-errors';
@@ -76,6 +77,26 @@ export async function exchangeAuthCode(code: string): Promise<'signedIn' | 'othe
 export async function updatePassword(newPassword: string): Promise<void> {
   const { error } = await supabase.auth.updateUser({ password: newPassword });
   if (error) fail(error);
+}
+
+/** Supabase does not ask for the current password, so it is checked by signing in with it first. */
+export async function changePassword(email: string, input: ChangePasswordInput): Promise<void> {
+  const { error } = await supabase.auth.signInWithPassword({ email, password: input.currentPassword });
+  if (error) {
+    const key = toAuthErrorKey(error);
+    throw new AuthFailure(key === 'invalidCredentials' ? 'wrongPassword' : key);
+  }
+  await updatePassword(input.newPassword);
+}
+
+/**
+ * Deletes the account and everything in it (delete-account Edge Function), then forgets the
+ * session on this device; the SIGNED_OUT event clears the cache and the guard shows sign-in.
+ */
+export async function deleteAccount(): Promise<void> {
+  const { error } = await supabase.functions.invoke('delete-account', { method: 'POST' });
+  if (error) throw new AppError(error instanceof FunctionsFetchError ? 'network' : 'generic', { cause: error });
+  await supabase.auth.signOut({ scope: 'local' });
 }
 
 export async function signOut(): Promise<void> {
