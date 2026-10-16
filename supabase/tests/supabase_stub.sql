@@ -13,6 +13,12 @@ create table auth.users (
   raw_user_meta_data jsonb
 );
 
+-- Supabase Auth owns auth.users and deletes users as this role, which has no rights on the
+-- app's tables: cascades from a user delete must not depend on the deleting role's privileges.
+create role supabase_auth_admin nologin;
+grant usage on schema auth to supabase_auth_admin;
+alter table auth.users owner to supabase_auth_admin;
+
 create function auth.uid() returns uuid
 language sql stable
 as $$ select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid $$;

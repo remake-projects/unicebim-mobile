@@ -22,19 +22,25 @@ Deno.serve(async (req) => {
   const userId = data.user.id;
 
   const { data: files, error: listError } = await admin.storage.from(AVATAR_BUCKET).list(userId, { limit: 1000 });
-  if (listError) return json({ error: 'storage_list_failed' }, 500);
+  if (listError) return fail('storage_list_failed', listError);
   if (files.length > 0) {
     const { error: removeError } = await admin.storage
       .from(AVATAR_BUCKET)
       .remove(files.map((f) => `${userId}/${f.name}`));
-    if (removeError) return json({ error: 'storage_remove_failed' }, 500);
+    if (removeError) return fail('storage_remove_failed', removeError);
   }
 
   const { error: deleteError } = await admin.auth.admin.deleteUser(userId);
-  if (deleteError) return json({ error: 'delete_failed' }, 500);
+  if (deleteError) return fail('delete_failed', deleteError);
 
   return json({ ok: true }, 200);
 });
+
+/** The cause goes to the function logs only; the app gets a stable code. */
+function fail(code: string, cause: { message: string }): Response {
+  console.error(code, cause.message);
+  return json({ error: code }, 500);
+}
 
 function json(body: unknown, status: number): Response {
   return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });

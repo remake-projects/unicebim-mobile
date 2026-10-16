@@ -12,6 +12,7 @@ Veritabanı şeması `migrations/` altında, sırayla uygulanan versiyonlu SQL d
 | `…120500_reporting_rpcs` | `get_monthly_trends` |
 | `…120600_hardening` | `check_rate_limit` anon erişimini kapatma |
 | `20261016120000_avatars_bucket` | `avatars` storage bucket'ı (public, 2 MB, JPEG/PNG/WebP) ve kullanıcı klasörü politikaları |
+| `20261016130000_user_deletion_cascade` | Bakiye trigger'ı sahibi olarak çalışır ve silinen hesabın satırlarını atlar (Supabase Auth işlemi olan kullanıcıyı silemiyordu) |
 
 ## Uygulama
 
@@ -39,9 +40,18 @@ CLI yoksa: dosyaları **isim sırasıyla** SQL Editor'de çalıştırın.
 - `functions/delete-account`: oturum açmış kullanıcının avatar dosyalarını ve hesabını siler
   (App Store / Google Play hesap silme zorunluluğu). Deploy: `supabase functions deploy delete-account --use-api` (Docker gerekmez).
 
+## Canlı duman testi
+
+`scripts/smoke-backend.py` bağlı projede geçici bir kullanıcı açar; kayıt trigger'ını, bakiye kurallarını,
+ödeme akışını, avatar klasör izinlerini ve `delete-account` fonksiyonunu dener, sonra kullanıcıyı siler:
+
+```bash
+SUPABASE_ACCESS_TOKEN=... python3 -I scripts/smoke-backend.py
+```
+
 ## Testler
 
-`scripts/test-migrations.sh` migration'ları geçici bir lokal Postgres'e uygular ve
+`scripts/test-migrations.sh` migration'ları geçici bir lokal Postgres'e uygular (Supabase Auth'un kısıtlı `supabase_auth_admin` rolü dahil) ve
 `tests/ledger.test.sql`'deki davranış testlerini çalıştırır (bakiye trigger'ı, transferler, ödemeler,
 içe aktarma, trendler, RLS, yetkiler, kaskad silmeler). Gerekenler: `initdb`, `pg_ctl`, `psql`
 (ör. `brew install postgresql@16`).

@@ -228,6 +228,31 @@ reset role;
 delete from wallets where id = (select cash from public._w);
 select pg_temp.assert(
   (select count(*) = 0 from transactions where wallet_id = (select cash from public._w)), 'deleting a wallet detaches its transactions');
+-- A user with income, expenses, a transfer and a paid payment, deleted the way Supabase Auth does it.
+insert into auth.users (id, email, raw_user_meta_data) values
+  ('44444444-4444-4444-4444-444444444444', 'd@x.io', '{"wallet_names":["Cash","Bank"]}');
+set role authenticated;
+select set_config('request.jwt.claim.sub', '44444444-4444-4444-4444-444444444444', false);
+insert into transactions (user_id, wallet_id, amount, type, category, date)
+select '44444444-4444-4444-4444-444444444444', id, 100, 'income', 'job', now() from wallets where is_default;
+insert into transactions (user_id, wallet_id, amount, type, category, date)
+select '44444444-4444-4444-4444-444444444444', id, 30, 'expense', 'food', now() from wallets where is_default;
+select transfer_between_wallets(
+  (select id from wallets where is_default), (select id from wallets where not is_default), 20, now());
+insert into upcoming_payments (user_id, name, amount, due_date)
+values ('44444444-4444-4444-4444-444444444444', 'Rent', 10, current_date);
+select mark_payment_paid((select id from upcoming_payments), (select id from wallets where is_default));
+reset role;
+set role supabase_auth_admin;
+delete from auth.users where id = '44444444-4444-4444-4444-444444444444';
+reset role;
+select pg_temp.assert(
+  (select count(*) = 0 from transactions where user_id = '44444444-4444-4444-4444-444444444444')
+  and (select count(*) = 0 from wallets where user_id = '44444444-4444-4444-4444-444444444444'),
+  'Supabase Auth can delete a user with transactions, transfers and paid payments');
+
+set role supabase_auth_admin;
 delete from auth.users where id = '11111111-1111-1111-1111-111111111111';
+reset role;
 select pg_temp.assert(
   (select count(*) = 0 from transactions where user_id = '11111111-1111-1111-1111-111111111111'), 'deleting a user cascades without balance errors');
