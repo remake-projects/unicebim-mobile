@@ -39,6 +39,10 @@ Supabase projesi (`pqddrakkvkvfewnmxqzj`) kurulu: migration'lar, `delete-account
 adresleri (`unicebim://**`, Expo Go için `exp://**`) hazır. Şema değişince tipleri `npm run db:types` ile yeniden üretin
 (Supabase CLI ve `supabase link` gerekir).
 
+## Yayın
+
+Yayın kontrol listesi, store metinleri ve yasal metin taslakları: [`docs/release/`](docs/release/README.md).
+
 ## Kontroller
 
 ```bash

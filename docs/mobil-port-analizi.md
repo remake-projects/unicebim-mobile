@@ -473,7 +473,7 @@ Mobil dashboard'u tasarlamadan önce bu tanımlar netleştirilmeli.
 | **4 — Planlama** | Gelecek ödemeler (+ öde akışı), abonelikler (logo), sabit giderler, bütçe ayarları, profil + avatar + parola + **hesap silme** | Web ile özellik eşitliğinin büyük kısmı | ✅ (cihazda denenmedi; `avatars` migration'ı projeye uygulanmayı bekliyor) |
 | **5 — Analiz & araçlar** | İstatistik/grafikler, rapor + paylaş, banka dökümü içe aktarma, hesap bölüştürücü | Tam özellik eşitliği | ✅ (cihazda denenmedi) |
 | **6 — Mobil artıları** | Yerel bildirimler, biyometrik kilit, offline yazma kuyruğu, widget | Web'den daha iyi deneyim | ✅ kısmen: hatırlatmalar, uygulama kilidi, çevrimdışı okuma. Yazma kuyruğu ve widget ertelendi (§8.1) |
-| **7 — Yayın** | Store metinleri, gizlilik formları, ikon/splash, EAS submit, beta (TestFlight / internal testing) | Store'da uygulama | Sıradaki |
+| **7 — Yayın** | Store metinleri, gizlilik formları, ikon/splash, EAS submit, beta (TestFlight / internal testing) | Store'da uygulama | Hazırlık ✅ (ikon/splash, `eas.json`, uygulama kimliği, yasal metin ve store metni taslakları: `docs/release/`); hesaplar ve gönderim bekliyor |
 
 ---
 
@@ -501,6 +501,9 @@ Mobil dashboard'u tasarlamadan önce bu tanımlar netleştirilmeli.
 | 2026-10-16 | Uygulama kilidi isteğe bağlı: açılışta ve 30 sn'den uzun arka plandan sonra; açıp kapamak da doğrulama ister; kilit ekranında çıkış yapma kaçış yolu | §6.1 |
 | 2026-10-16 | **Çevrimdışı yazma kuyruğu ertelendi:** bakiye eksiye düşemediği ve ödeme/transfer RPC'leri sunucuda doğrulandığı için sonradan gönderilen yazmalar sessizce reddedilebilir; çakışma/geri bildirim tasarımı olmadan eklenmez | §6.2 |
 | 2026-10-16 | **Ana ekran widget'ı ertelendi:** native hedef (WidgetKit / Glance) ve paylaşılan depolama gerektiriyor; cihazda denenmeden yazılmayacak, yayın sonrası değerlendirilir | §6.5 |
+| 2026-10-16 | Uygulama kimliği geçici olarak `com.unicebim.app` (iOS + Android); ilk store yüklemesinden önce kesinleşmeli | docs/release |
+| 2026-10-16 | İkon: lacivert (`#0F172A`) zemin, cebe düşen yeşil para ("U"); kaynak SVG'ler `assets/source/`. Expo şablonunun Icon Composer paketi kaldırıldı | docs/release |
+| 2026-10-16 | Gizlilik politikası / kullanım şartları adresleri `EXPO_PUBLIC_PRIVACY_POLICY_URL` / `EXPO_PUBLIC_TERMS_URL`; kayıt ekranında ve profilde bağlantı (adres yoksa gizli) | §6.6 |
 
 | 2026-10-13 | Cüzdan bakiyesi **eksiye düşemez** (`CHECK (balance >= 0)` korunur); yetersiz bakiyede işlem net hata ile reddedilir | B1/B2 |
 | 2026-10-13 | Transfer: `transactions` içinde `kind = 'transfer'` + ortak `transfer_group_id` ile iki kayıt; istatistiklerde sayılmaz | B3/B4 |
