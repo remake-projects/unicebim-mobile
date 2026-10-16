@@ -8,6 +8,7 @@ import { Avatar } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { ConfirmButton } from '@/components/ui/confirm-button';
 import { FormMessage } from '@/components/ui/form-message';
+import { IconTile } from '@/components/ui/icon';
 import { MenuRow } from '@/components/ui/menu-row';
 import { Screen } from '@/components/ui/screen';
 import { SectionHeader } from '@/components/ui/section-header';
@@ -54,26 +55,26 @@ export default function ProfileScreen() {
 
       <SectionHeader title={t('profile.planning')} />
       <View>
-        <MenuRow title={t('wallets.title')} subtitle={t('wallets.subtitle')} onPress={open('/wallets')} />
-        <MenuRow title={t('payments.title')} subtitle={t('payments.subtitle')} onPress={open('/payments')} />
-        <MenuRow title={t('subscriptions.title')} subtitle={t('subscriptions.subtitle')} onPress={open('/subscriptions')} />
-        <MenuRow title={t('fixedExpenses.title')} subtitle={t('fixedExpenses.subtitle')} onPress={open('/fixed-expenses')} />
-        <MenuRow title={t('budget.title')} subtitle={t('budget.subtitle')} onPress={open('/settings/budget')} />
+        <MenuRow leading={<IconTile name="wallet" />} title={t('wallets.title')} subtitle={t('wallets.subtitle')} onPress={open('/wallets')} />
+        <MenuRow leading={<IconTile name="calendar" />} title={t('payments.title')} subtitle={t('payments.subtitle')} onPress={open('/payments')} />
+        <MenuRow leading={<IconTile name="repeat" />} title={t('subscriptions.title')} subtitle={t('subscriptions.subtitle')} onPress={open('/subscriptions')} />
+        <MenuRow leading={<IconTile name="pin" />} title={t('fixedExpenses.title')} subtitle={t('fixedExpenses.subtitle')} onPress={open('/fixed-expenses')} />
+        <MenuRow leading={<IconTile name="target" />} title={t('budget.title')} subtitle={t('budget.subtitle')} onPress={open('/settings/budget')} />
       </View>
 
       <SectionHeader title={t('profile.tools')} />
       <View>
-        <MenuRow title={t('bankImport.title')} subtitle={t('bankImport.subtitle')} onPress={open('/bank-import')} />
-        <MenuRow title={t('stats.report')} subtitle={t('stats.reportSubtitle')} onPress={open('/report')} />
-        <MenuRow title={t('billSplitter.title')} subtitle={t('billSplitter.subtitle')} onPress={open('/bill-splitter')} />
+        <MenuRow leading={<IconTile name="import" />} title={t('bankImport.title')} subtitle={t('bankImport.subtitle')} onPress={open('/bank-import')} />
+        <MenuRow leading={<IconTile name="report" />} title={t('stats.report')} subtitle={t('stats.reportSubtitle')} onPress={open('/report')} />
+        <MenuRow leading={<IconTile name="split" />} title={t('billSplitter.title')} subtitle={t('billSplitter.subtitle')} onPress={open('/bill-splitter')} />
       </View>
 
       <SectionHeader title={t('profile.account')} />
       <View>
-        <MenuRow title={t('profile.edit')} subtitle={t('profile.editSubtitle')} onPress={open('/settings/profile')} />
-        <MenuRow title={t('profile.changePassword')} onPress={open('/settings/password')} />
-        <MenuRow title={t('region.title')} subtitle={t('region.subtitle')} onPress={open('/settings/region')} />
-        <MenuRow title={t('security.title')} subtitle={t('security.subtitle')} onPress={open('/settings/security')} />
+        <MenuRow leading={<IconTile name="person" />} title={t('profile.edit')} subtitle={t('profile.editSubtitle')} onPress={open('/settings/profile')} />
+        <MenuRow leading={<IconTile name="key" />} title={t('profile.changePassword')} onPress={open('/settings/password')} />
+        <MenuRow leading={<IconTile name="globe" />} title={t('region.title')} subtitle={t('region.subtitle')} onPress={open('/settings/region')} />
+        <MenuRow leading={<IconTile name="lock" />} title={t('security.title')} subtitle={t('security.subtitle')} onPress={open('/settings/security')} />
       </View>
 
       <FormMessage message={error} />

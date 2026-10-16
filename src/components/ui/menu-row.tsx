@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { Icon } from './icon';
 
 type Tone = 'default' | 'danger' | 'warning' | 'success';
 
@@ -34,7 +35,7 @@ export function MenuRow({ title, subtitle, subtitleTone = 'default', leading, de
         {subtitle ? <Text style={[styles.subtitle, { color: color(subtitleTone, theme.textSecondary) }]}>{subtitle}</Text> : null}
       </View>
       {detail ? <Text style={[styles.detail, { color: theme.text }]}>{detail}</Text> : null}
-      {onPress ? <Text style={[styles.chevron, { color: theme.textSecondary }]}>›</Text> : null}
+      {onPress ? <Icon name="chevronRight" color={theme.textSecondary} size={14} /> : null}
     </Pressable>
   );
 }
@@ -52,5 +53,4 @@ const styles = StyleSheet.create({
   title: { fontSize: 16, fontWeight: 500 },
   subtitle: { fontSize: 13 },
   detail: { fontSize: 16, fontWeight: 600, fontVariant: ['tabular-nums'] },
-  chevron: { fontSize: 22 },
 });

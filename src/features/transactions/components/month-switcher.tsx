@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { Icon } from '@/components/ui/icon';
 import { addMonths, formatYearMonth, type YearMonth } from '@/core/time';
 import { useRegion } from '@/features/profile/use-region';
 import { useTheme } from '@/hooks/use-theme';
@@ -21,7 +22,7 @@ export function MonthSwitcher({ value, onChange, max }: Props) {
         onPress={() => onChange(addMonths(value, -1))}
         hitSlop={12}
         style={styles.arrow}>
-        <Text style={[styles.arrowText, { color: theme.text }]}>‹</Text>
+        <Icon name="chevronLeft" color={theme.text} />
       </Pressable>
       <Text accessibilityRole="header" style={[styles.label, { color: theme.text }]}>
         {formatYearMonth(value, locale)}
@@ -34,7 +35,7 @@ export function MonthSwitcher({ value, onChange, max }: Props) {
         onPress={() => onChange(addMonths(value, 1))}
         hitSlop={12}
         style={[styles.arrow, !canGoNext && styles.disabled]}>
-        <Text style={[styles.arrowText, { color: theme.text }]}>›</Text>
+        <Icon name="chevronRight" color={theme.text} />
       </Pressable>
     </View>
   );
@@ -43,7 +44,6 @@ export function MonthSwitcher({ value, onChange, max }: Props) {
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   arrow: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
-  arrowText: { fontSize: 28, fontWeight: 500 },
   label: { fontSize: 18, fontWeight: 700, textTransform: 'capitalize' },
   disabled: { opacity: 0.3 },
 });

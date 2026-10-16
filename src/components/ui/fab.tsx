@@ -1,8 +1,9 @@
-import { Pressable, StyleSheet, Text } from 'react-native';
+import { Pressable, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { Icon } from './icon';
 
 export const FAB_SIZE = 56;
 
@@ -24,7 +25,7 @@ export function Fab({ onPress, accessibilityLabel }: Props) {
         styles.fab,
         { backgroundColor: theme.primary, bottom: insets.bottom + Spacing.three, opacity: pressed ? 0.85 : 1 },
       ]}>
-      <Text style={[styles.plus, { color: theme.onPrimary }]}>+</Text>
+      <Icon name="add" color={theme.onPrimary} size={28} />
     </Pressable>
   );
 }
@@ -47,5 +48,4 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 4 },
   },
-  plus: { fontSize: 32, lineHeight: 36, fontWeight: 400 },
 });
