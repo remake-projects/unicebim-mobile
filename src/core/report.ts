@@ -32,14 +32,22 @@ export function expenseByCategory(entries: readonly ReportEntry[]): CategoryAmou
 
 export type CsvCell = string | number | null | undefined;
 
+/**
+ * Text starting with one of these is run as a formula by spreadsheet apps. Descriptions come from
+ * bank statements, so a transfer note like `=HYPERLINK(…)` would otherwise execute on open.
+ */
+const FORMULA_START = /^[=+\-@\t\r]/;
+
 function csvCell(value: CsvCell): string {
-  const text = value == null ? '' : String(value);
+  // Numbers are written as numbers; only text can smuggle in a formula.
+  const text = value == null ? '' : typeof value === 'string' && FORMULA_START.test(value) ? `'${value}` : String(value);
   return /[",\r\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
 }
 
 /**
  * RFC 4180 CSV (comma separated, CRLF line ends) with a UTF-8 byte order mark, so spreadsheet
- * apps read non-ASCII text correctly. Numbers are written with a "." decimal point.
+ * apps read non-ASCII text correctly. Numbers are written with a "." decimal point; text that would
+ * start a formula is prefixed with an apostrophe (OWASP CSV injection guidance).
  */
 export function toCsv(rows: readonly (readonly CsvCell[])[]): string {
   return '﻿' + rows.map((row) => row.map(csvCell).join(',')).join('\r\n') + '\r\n';

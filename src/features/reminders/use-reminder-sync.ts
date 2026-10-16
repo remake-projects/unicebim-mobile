@@ -16,7 +16,7 @@ import { cancelReminders, replaceReminders, type ScheduledReminder } from './not
  */
 export function useReminderSync(): void {
   const { t } = useTranslation();
-  const { reminders: enabled } = useDeviceSettings();
+  const { reminders: enabled, appLock } = useDeviceSettings();
   const { timeZone } = useRegion();
   const format = useFormatMoney();
   const payments = usePayments();
@@ -36,10 +36,13 @@ export function useReminderSync(): void {
         id: r.id,
         at: r.at,
         title: t(`reminders.${r.kind}`),
+        // Notifications show on the lock screen; with the app lock on, names and amounts stay inside.
         body:
           r.kind === 'incomeToday'
             ? t('reminders.incomeBody')
-            : t('reminders.itemBody', { name: r.name, amount: format(r.amount ?? 0) }),
+            : appLock
+              ? t('reminders.privateBody')
+              : t('reminders.itemBody', { name: r.name, amount: format(r.amount ?? 0) }),
       }))
     : [];
   // Rescheduling only when the plan itself changes, not on every render.

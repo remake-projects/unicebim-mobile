@@ -17,7 +17,7 @@ import { buildImportPreview } from '@/core/bank-import/preview';
 import type { BankId } from '@/core/bank-import/types';
 import { StatementPreview, type ParsedStatement } from '@/features/bank-import/components/statement-preview';
 import type { ImportResult } from '@/features/bank-import/import-api';
-import { pickStatement } from '@/features/bank-import/read-statement';
+import { pickStatement, StatementTooLargeError } from '@/features/bank-import/read-statement';
 import { useImportStatement } from '@/features/bank-import/use-import';
 import { useWalletOptions } from '@/features/wallets/use-wallet-options';
 import { useWallets } from '@/features/wallets/use-wallets';
@@ -25,7 +25,7 @@ import { useTheme } from '@/hooks/use-theme';
 
 const BANKS: readonly BankId[] = ['ziraat', 'is-bank'];
 
-type ParseError = 'emptyFile' | 'headerNotFound' | 'unreadable' | 'noLines';
+type ParseError = 'emptyFile' | 'headerNotFound' | 'unreadable' | 'noLines' | 'tooLarge';
 
 export default function BankImportScreen() {
   const { t } = useTranslation();
@@ -62,8 +62,8 @@ export default function BankImportScreen() {
         // The wallet cannot go below zero, so an overdrawn balance is not offered.
         finalBalance: finalBalance != null && finalBalance >= 0 ? finalBalance : null,
       });
-    } catch {
-      setParseError('unreadable');
+    } catch (error) {
+      setParseError(error instanceof StatementTooLargeError ? 'tooLarge' : 'unreadable');
     } finally {
       setPicking(false);
     }

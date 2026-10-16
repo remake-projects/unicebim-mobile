@@ -1,25 +1,30 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AppState, Modal, StyleSheet, Text, View } from 'react-native';
+import { AppState, StyleSheet, Text, View } from 'react-native';
 
 import { Button } from '@/components/ui/button';
+import { Icon } from '@/components/ui/icon';
 import { Spacing } from '@/constants/theme';
 import { signOut } from '@/features/auth/auth-api';
 import { useTheme } from '@/hooks/use-theme';
 import { getDeviceSettings, useDeviceSettings } from '@/lib/device-settings';
+import { useAppSwitcherPrivacy } from './app-switcher-privacy';
 import { verifyOwner } from './biometrics';
 
 /** Locks again only after the app spent longer than this in the background. */
 const RELOCK_AFTER_MS = 30_000;
 
 /**
- * Full-screen lock over the signed-in app (a Modal, so it also covers modal screens).
- * Locked at start and after RELOCK_AFTER_MS in the background, while the setting is on.
+ * Lock state of the signed-in app while the setting is on: locked at start and after
+ * RELOCK_AFTER_MS in the background. The layout renders <LockScreen> *instead of* the
+ * navigator while locked, so no screen (not even one opened by a deep link) is mounted
+ * behind the lock.
  */
-export function AppLock() {
+export function useAppLock(): { locked: boolean; unlock: () => void } {
   const { appLock } = useDeviceSettings();
   const [locked, setLocked] = useState(() => getDeviceSettings().appLock);
   const backgroundSince = useRef<number | null>(null);
+  useAppSwitcherPrivacy(appLock);
 
   useEffect(() => {
     if (!appLock) return;
@@ -35,15 +40,10 @@ export function AppLock() {
   }, [appLock]);
 
   // Turning the setting off unlocks right away.
-  const visible = appLock && locked;
-  return (
-    <Modal visible={visible} animationType="fade" presentationStyle="fullScreen" onRequestClose={() => {}}>
-      {visible ? <LockScreen onUnlock={() => setLocked(false)} /> : null}
-    </Modal>
-  );
+  return { locked: appLock && locked, unlock: () => setLocked(false) };
 }
 
-function LockScreen({ onUnlock }: { onUnlock: () => void }) {
+export function LockScreen({ onUnlock }: { onUnlock: () => void }) {
   const { t } = useTranslation();
   const theme = useTheme();
   const [busy, setBusy] = useState(false);
@@ -69,7 +69,7 @@ function LockScreen({ onUnlock }: { onUnlock: () => void }) {
 
   return (
     <View style={[styles.screen, { backgroundColor: theme.background }]}>
-      <Text style={styles.icon}>🔒</Text>
+      <Icon name="lock" color={theme.text} size={48} />
       <Text style={[styles.title, { color: theme.text }]}>{t('security.locked')}</Text>
       <View style={styles.actions}>
         <Button title={t('security.unlock')} loading={busy} onPress={unlock} />
@@ -81,7 +81,6 @@ function LockScreen({ onUnlock }: { onUnlock: () => void }) {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: Spacing.three, padding: Spacing.four },
-  icon: { fontSize: 48 },
   title: { fontSize: 22, fontWeight: 700 },
   actions: { alignSelf: 'stretch', gap: Spacing.two },
 });

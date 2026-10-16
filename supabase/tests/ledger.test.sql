@@ -222,6 +222,17 @@ reset role;
 set role anon;
 select pg_temp.expect_error($$select check_rate_limit('k', 1, 60)$$, '42501', 'anon cannot call check_rate_limit');
 select pg_temp.expect_error($$select set_default_wallet(gen_random_uuid())$$, '42501', 'anon cannot call ledger RPCs');
+reset role;
+set role authenticated;
+select pg_temp.expect_error($$select check_rate_limit('k', 1, 60)$$, '42501', 'signed-in users cannot call check_rate_limit');
+select pg_temp.assert(
+  not has_function_privilege('authenticated', 'public.handle_new_user()', 'execute')
+  and not has_function_privilege('anon', 'public.sync_monthly_fixed_expenses()', 'execute'),
+  'definer trigger functions are not callable over the API');
+select pg_temp.assert(
+  (select bool_and(proconfig @> array['search_path=public']) from pg_proc
+   where proname in ('update_upcoming_payments_updated_at', 'set_upcoming_payment_paid_at', 'update_subscriptions_updated_at')),
+  'trigger functions have a fixed search_path');
 
 -- ---------------------------------------------------------------- cascades
 reset role;

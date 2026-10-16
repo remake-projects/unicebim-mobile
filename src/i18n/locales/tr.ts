@@ -317,6 +317,7 @@ const tr = {
     deleteAccountTitle: 'Hesabın kalıcı olarak silinsin mi?',
     deleteAccountMessage: 'Tüm cüzdanların, işlemlerin, ödemelerin, aboneliklerin ve profil fotoğrafın silinir. Bu işlem geri alınamaz.',
     deleteAccountConfirm: 'Kalıcı olarak sil',
+    deleteAccountPassword: 'Onaylamak için parolan',
   },
   stats: {
     month: 'Aylık',
@@ -371,6 +372,7 @@ const tr = {
       headerNotFound: 'Bu dosya seçtiğin bankanın döküm biçimine uymuyor. Bankayı kontrol et.',
       unreadable: 'Dosya okunamadı. Bankanın Excel dökümünü seçtiğinden emin ol.',
       noLines: 'Dosyada içe aktarılacak hareket bulunamadı.',
+      tooLarge: 'Dosya bir hesap dökümü için fazla büyük (en fazla 5 MB).',
     },
     file: 'Dosya: {{name}}',
     lines_one: '{{count}} hareket bulundu',
@@ -424,6 +426,7 @@ const tr = {
     renewalTomorrow: 'Yarın yenileniyor',
     incomeToday: 'Bugün gelir günün',
     itemBody: '{{name}}: {{amount}}',
+    privateBody: 'Ayrıntılar için UniCebim\'i aç.',
     incomeBody: 'Gelirini eklemeyi ve bütçeni gözden geçirmeyi unutma.',
   },
   security: {
@@ -434,7 +437,7 @@ const tr = {
     permissionDenied: 'Bildirim izni kapalı. Telefonun ayarlarından UniCebim için bildirimlere izin ver.',
     openSettings: 'Ayarları aç',
     appLock: 'Uygulama kilidi',
-    appLockHint: 'Uygulama açılırken ve arka plandan dönerken Face ID, parmak izi ya da telefon şifresi ister.',
+    appLockHint: 'Uygulama açılırken ve arka plandan dönerken Face ID, parmak izi ya da telefon şifresi ister. Açıkken uygulama, son kullanılanlar ekranında gizlenir ve bildirimlerde tutar gösterilmez.',
     appLockUnavailable: 'Bu cihazda kilit için Face ID, parmak izi ya da ekran kilidi ayarlı değil.',
     unlockPrompt: 'UniCebim kilidini aç',
     locked: 'UniCebim kilitli',

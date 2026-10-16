@@ -318,6 +318,7 @@ const en: Translations = {
     deleteAccountTitle: 'Permanently delete your account?',
     deleteAccountMessage: 'All your wallets, transactions, payments, subscriptions and your profile photo are deleted. This cannot be undone.',
     deleteAccountConfirm: 'Delete permanently',
+    deleteAccountPassword: 'Your password, to confirm',
   },
   stats: {
     month: 'Monthly',
@@ -372,6 +373,7 @@ const en: Translations = {
       headerNotFound: "This file doesn't match the selected bank's statement format. Check the bank.",
       unreadable: "The file couldn't be read. Make sure you picked the bank's Excel statement.",
       noLines: 'No movements to import were found in the file.',
+      tooLarge: 'The file is too large for a bank statement (5 MB at most).',
     },
     file: 'File: {{name}}',
     lines_one: '{{count}} movement found',
@@ -425,6 +427,7 @@ const en: Translations = {
     renewalTomorrow: 'Renews tomorrow',
     incomeToday: "It's your income day",
     itemBody: '{{name}}: {{amount}}',
+    privateBody: 'Open UniCebim for the details.',
     incomeBody: "Don't forget to add your income and review your budget.",
   },
   security: {
@@ -435,7 +438,7 @@ const en: Translations = {
     permissionDenied: 'Notifications are turned off. Allow them for UniCebim in your phone settings.',
     openSettings: 'Open settings',
     appLock: 'App lock',
-    appLockHint: 'Asks for Face ID, fingerprint or your device passcode when the app opens or comes back.',
+    appLockHint: 'Asks for Face ID, fingerprint or your device passcode when the app opens or comes back. While on, the app is hidden in the app switcher and notifications leave out amounts.',
     appLockUnavailable: 'This device has no Face ID, fingerprint or screen lock set up.',
     unlockPrompt: 'Unlock UniCebim',
     locked: 'UniCebim is locked',

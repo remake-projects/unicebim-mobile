@@ -37,8 +37,12 @@ export const newPasswordSchema = z
   .object({ newPassword: password, confirmPassword: z.string() })
   .refine((v) => v.newPassword === v.confirmPassword, { message: V.passwordsDontMatch, path: ['confirmPassword'] });
 
+/** Re-entering the password before the account is deleted. */
+export const deleteAccountSchema = z.object({ password: z.string().min(1, V.required) });
+
 export type LoginInput = z.output<typeof loginSchema>;
 export type RegisterFormInput = z.input<typeof registerSchema>;
 export type RegisterInput = z.output<typeof registerSchema>;
 export type ChangePasswordInput = z.output<typeof changePasswordSchema>;
 export type NewPasswordInput = z.output<typeof newPasswordSchema>;
+export type DeleteAccountInput = z.output<typeof deleteAccountSchema>;

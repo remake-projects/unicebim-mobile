@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { router } from 'expo-router';
+import { Redirect, router } from 'expo-router';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 
@@ -9,9 +10,19 @@ import { focusNext, FormTextField, submitOnDone } from '@/components/ui/form-tex
 import { Screen, UNDER_HEADER_EDGES } from '@/components/ui/screen';
 import { newPasswordSchema, type NewPasswordInput } from '@/core/schemas/auth';
 import { updatePassword } from '@/features/auth/auth-api';
+import { hasRecoveryGrant, revokeRecovery } from '@/features/auth/recovery';
 import { useFormSubmit } from '@/hooks/use-form-submit';
 
+/** Only reachable from a password-recovery link (see features/auth/recovery). */
 export default function ResetPasswordScreen() {
+  const [allowed] = useState(hasRecoveryGrant);
+  useEffect(() => revokeRecovery, []);
+  // Everyone else changes the password with the current one.
+  if (!allowed) return <Redirect href="/settings/password" />;
+  return <NewPasswordForm />;
+}
+
+function NewPasswordForm() {
   const { t } = useTranslation();
   const { error, submit } = useFormSubmit(async ({ newPassword }: NewPasswordInput) => {
     await updatePassword(newPassword);

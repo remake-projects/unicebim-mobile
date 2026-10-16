@@ -7,8 +7,9 @@ import { ThemedText } from '@/components/themed-text';
 import { Button } from '@/components/ui/button';
 import { Screen } from '@/components/ui/screen';
 import { exchangeAuthCode } from '@/features/auth/auth-api';
+import { grantRecovery } from '@/features/auth/recovery';
 
-type Params = { code?: string; next?: string; error?: string };
+type Params = { code?: string; error?: string };
 
 /**
  * Target of e-mail links (unicebim://auth/callback?code=…). Supabase has already verified the
@@ -17,7 +18,7 @@ type Params = { code?: string; next?: string; error?: string };
  */
 export default function AuthCallbackScreen() {
   const { t } = useTranslation();
-  const { code, next, error } = useLocalSearchParams<Params>();
+  const { code, error } = useLocalSearchParams<Params>();
   const [status, setStatus] = useState<'working' | 'signInRequired' | 'failed'>(
     error || !code ? 'failed' : 'working'
   );
@@ -26,11 +27,15 @@ export default function AuthCallbackScreen() {
     if (error || !code) return;
     exchangeAuthCode(code)
       .then((result) => {
-        if (result === 'otherDevice') setStatus('signInRequired');
-        else router.replace(next === 'reset-password' ? '/reset-password' : '/');
+        if (result === 'otherDevice') return setStatus('signInRequired');
+        if (result === 'recovery') {
+          grantRecovery();
+          return router.replace('/reset-password');
+        }
+        router.replace('/');
       })
       .catch(() => setStatus('failed'));
-  }, [code, next, error]);
+  }, [code, error]);
 
   return (
     <Screen centered>

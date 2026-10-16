@@ -22,6 +22,11 @@ describe('report', () => {
     ]);
   });
 
+  it('neutralises text that a spreadsheet would run as a formula', () => {
+    const csv = toCsv([['=HYPERLINK("http://x","y")', '+1', '-2', '@SUM(A1)', 'ok', -45.5]]);
+    expect(csv).toBe('\uFEFF"\'=HYPERLINK(""http://x"",""y"")",\'+1,\'-2,\'@SUM(A1),ok,-45.5\r\n');
+  });
+
   it('writes RFC 4180 CSV with a BOM', () => {
     const csv = toCsv([
       ['Tarih', 'Açıklama', 'Tutar'],

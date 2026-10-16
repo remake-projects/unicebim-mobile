@@ -6,14 +6,13 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { LegalLinks } from '@/components/legal-links';
 import { Avatar } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { ConfirmButton } from '@/components/ui/confirm-button';
 import { FormMessage } from '@/components/ui/form-message';
 import { IconTile } from '@/components/ui/icon';
 import { MenuRow } from '@/components/ui/menu-row';
 import { Screen } from '@/components/ui/screen';
 import { SectionHeader } from '@/components/ui/section-header';
 import { Spacing } from '@/constants/theme';
-import { deleteAccount, signOut } from '@/features/auth/auth-api';
+import { signOut } from '@/features/auth/auth-api';
 import { useAuth } from '@/features/auth/auth-provider';
 import { useProfile } from '@/features/profile/use-profile';
 import { useTheme } from '@/hooks/use-theme';
@@ -79,13 +78,7 @@ export default function ProfileScreen() {
 
       <FormMessage message={error} />
       <Button variant="secondary" title={t('auth.signOut')} loading={busy} onPress={onSignOut} />
-      <ConfirmButton
-        title={t('profile.deleteAccount')}
-        confirmTitle={t('profile.deleteAccountTitle')}
-        confirmMessage={t('profile.deleteAccountMessage')}
-        confirmLabel={t('profile.deleteAccountConfirm')}
-        onConfirm={deleteAccount}
-      />
+      <Button variant="ghost" title={t('profile.deleteAccount')} onPress={open('/settings/delete-account')} />
       <LegalLinks />
     </Screen>
   );
