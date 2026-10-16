@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { detectCategory } from './detect-category';
 import { parseBankStatement } from './parsers';
+import { chunk, importPreviewTotals, statementFinalBalance, toImportRpcRows } from './payload';
 import { buildImportPreview } from './preview';
 
 const ziraatRows = [
@@ -59,5 +60,37 @@ describe('detectCategory', () => {
     expect(detectCategory('susam', 'expense')).toBe('other'); // "su" (water) was a substring false positive
     expect(detectCategory('EFT MAAS', 'income')).toBe('job');
     expect(detectCategory('anything', 'income')).toBe('other');
+  });
+});
+
+describe('import payload', () => {
+  const lines = [
+    { date: '2026-10-01T09:00:00.000Z', signedAmount: 3000, description: 'KYK', balanceAfter: 3500, order: 0 },
+    { date: '2026-10-01T09:00:00.000Z', signedAmount: -1234.56, description: 'MIGROS', balanceAfter: 2265.44, order: 1 },
+    { date: '2026-09-30T09:00:00.000Z', signedAmount: -10, description: 'OLD', balanceAfter: 500, order: 0 },
+  ];
+
+  it('takes the balance after the newest line', () => {
+    expect(statementFinalBalance(lines)).toBe(2265.44);
+    expect(statementFinalBalance([{ ...lines[0]!, balanceAfter: null }])).toBeNull();
+    expect(statementFinalBalance([])).toBeNull();
+  });
+
+  it('totals the preview and maps rows for the RPC', () => {
+    const preview = buildImportPreview(lines);
+    expect(importPreviewTotals(preview)).toEqual({ count: 3, income: 3000, expense: 1244.56 });
+    expect(toImportRpcRows(preview)[1]).toEqual({
+      date: '2026-10-01T09:00:00.000Z',
+      amount: 1234.56,
+      type: 'expense',
+      category: preview[1]!.category,
+      description: 'MIGROS',
+      order: 1,
+    });
+  });
+
+  it('chunks rows', () => {
+    expect(chunk([1, 2, 3, 4, 5], 2)).toEqual([[1, 2], [3, 4], [5]]);
+    expect(chunk([], 2)).toEqual([]);
   });
 });

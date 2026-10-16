@@ -77,6 +77,11 @@ export default function WalletDetailScreen() {
             {!w.isDefault ? (
               <Button variant="ghost" title={t('wallets.makeDefault')} loading={setDefault.isPending} onPress={makeDefault} />
             ) : null}
+            <Button
+              variant="ghost"
+              title={t('bankImport.title')}
+              onPress={() => router.push({ pathname: '/bank-import', params: { walletId: w.id } })}
+            />
             <MonthSwitcher value={ym} onChange={setYm} max={thisMonth} />
             <MonthSummaryCard summary={summary.data} />
           </View>
