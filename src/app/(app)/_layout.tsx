@@ -37,6 +37,8 @@ export default function AppLayout() {
       <Stack.Screen name="settings/profile" options={{ ...modal, title: t('profile.edit') }} />
       <Stack.Screen name="settings/password" options={{ ...modal, title: t('profile.changePassword') }} />
 
+      <Stack.Screen name="report" options={{ title: t('report.title') }} />
+
       <Stack.Screen name="reset-password" options={{ ...modal, title: t('auth.resetPassword.title') }} />
     </Stack>
   );

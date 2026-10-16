@@ -2,6 +2,7 @@ import type { TransactionType } from '@/core/categories';
 import type { CategoryAmount } from '@/core/insights';
 import { toNumberOrZero } from '@/core/number';
 import type { TransactionInput, UpdateTransactionInput } from '@/core/schemas/transaction';
+import type { MonthTotals } from '@/core/stats';
 import { transactionInstantForDate, ymdInZone, type MonthRange } from '@/core/time';
 import type { Database } from '@/data/database.types';
 import { unwrap } from '@/lib/data-error';
@@ -159,4 +160,47 @@ export async function fetchExpenseCategoryTotals(range: MonthRange): Promise<Cat
     })
   );
   return rows.map((r) => ({ category: r.category, amount: toNumberOrZero(r.total) }));
+}
+
+export type DateRange = { start: Date; end: Date };
+
+/** Rows per request; PostgREST caps responses at 1000 by default. */
+const RANGE_BATCH = 1000;
+/** Upper bound for one report / chart, so a huge range cannot hang the app. */
+export const RANGE_MAX_ROWS = 10_000;
+
+/**
+ * Every income/expense (transfers excluded) in [start, end), oldest first, fetched in batches.
+ * Stops at RANGE_MAX_ROWS; `truncated` tells the caller.
+ */
+export async function fetchTransactionsInRange(
+  range: DateRange,
+  type: TransactionType | null = null
+): Promise<{ items: Transaction[]; truncated: boolean }> {
+  const items: Transaction[] = [];
+  for (let from = 0; from < RANGE_MAX_ROWS; from += RANGE_BATCH) {
+    let query = supabase
+      .from('transactions')
+      .select(COLUMNS)
+      .eq('kind', 'normal')
+      .gte('date', range.start.toISOString())
+      .lt('date', range.end.toISOString());
+    if (type) query = query.eq('type', type);
+    const rows = unwrap(
+      await query.order('date', { ascending: true }).order('id', { ascending: true }).range(from, from + RANGE_BATCH - 1)
+    );
+    items.push(...rows.map(toTransaction));
+    if (rows.length < RANGE_BATCH) return { items, truncated: false };
+  }
+  return { items, truncated: true };
+}
+
+/** Income/expense of the last `months` months (this month last), in the user's time zone. */
+export async function fetchMonthlyTrends(months: number, timeZone: string): Promise<MonthTotals[]> {
+  const rows = unwrap(await supabase.rpc('get_monthly_trends', { p_months: months, p_tz: timeZone }));
+  return rows.map((r) => ({
+    ym: r.month.slice(0, 7),
+    income: toNumberOrZero(r.income_total),
+    expense: toNumberOrZero(r.expense_total),
+  }));
 }

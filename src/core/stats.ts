@@ -1,5 +1,5 @@
 import { roundMoney } from './number';
-import { addDays, isoWeekday, startOfIsoWeek, ymdInZone, type Ymd, type YearMonth } from './time';
+import { addDays, daysInMonth, isoWeekday, startOfIsoWeek, ymdInZone, type Ymd, type YearMonth } from './time';
 
 export type StatTransaction = { date: string; type: 'income' | 'expense'; amount: number };
 export type DayTotals = { date: Ymd; income: number; expense: number };
@@ -14,6 +14,16 @@ export function dailyTotals(transactions: readonly StatTransaction[], timeZone: 
     byDay.set(date, row);
   }
   return [...byDay.values()].sort((a, b) => a.date.localeCompare(b.date));
+}
+
+/** One row per day of `ym` (days without entries are zero), for a full-month chart. */
+export function fillMonthDays(days: readonly DayTotals[], ym: YearMonth): DayTotals[] {
+  const byDate = new Map(days.map((d) => [d.date, d]));
+  const count = daysInMonth(Number(ym.slice(0, 4)), Number(ym.slice(5, 7)));
+  return Array.from({ length: count }, (_, i) => {
+    const date = `${ym}-${String(i + 1).padStart(2, '0')}`;
+    return byDate.get(date) ?? { date, income: 0, expense: 0 };
+  });
 }
 
 export type WeekdayComparison = { weekday: number; current: number; previous: number };

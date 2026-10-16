@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import { splitEqually, splitItemized } from './bill-splitter';
 import { extractIban, formatIban, isValidIban } from './iban';
-import { dailyTotals, summarizeTrend, weekOverWeekExpenses } from './stats';
+import { dailyTotals, fillMonthDays, summarizeTrend, weekOverWeekExpenses } from './stats';
 
 describe('iban', () => {
   it('validates checksums for any country', () => {
@@ -63,5 +63,14 @@ describe('stats', () => {
         { ym: '2026-10', income: 300, expense: 300 },
       ])
     ).toEqual({ averageIncome: 200, averageExpense: 250, expenseChangePercent: 50 });
+  });
+});
+
+describe('fillMonthDays', () => {
+  it('returns every day of the month, zero where nothing happened', () => {
+    const days = fillMonthDays([{ date: '2026-02-10', income: 0, expense: 25 }], '2026-02');
+    expect(days).toHaveLength(28);
+    expect(days[0]).toEqual({ date: '2026-02-01', income: 0, expense: 0 });
+    expect(days[9]).toEqual({ date: '2026-02-10', income: 0, expense: 25 });
   });
 });

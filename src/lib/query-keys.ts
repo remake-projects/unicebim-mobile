@@ -21,6 +21,10 @@ export const queryKeys = {
   categoryTotals: (ym: YearMonth) => ['ledger', 'categoryTotals', ym] as const,
   transactionList: (filters: TransactionListFilters) => ['ledger', 'transactions', filters] as const,
   recentTransactions: ['ledger', 'recent'] as const,
+  /** Transactions between two instants (ISO strings), for charts and reports. */
+  rangeTransactions: (start: string, end: string, type: 'income' | 'expense' | null) =>
+    ['ledger', 'range', start, end, type] as const,
+  monthlyTrends: (months: number) => ['ledger', 'trends', months] as const,
   transaction: (id: string) => ['ledger', 'transaction', id] as const,
 };
 

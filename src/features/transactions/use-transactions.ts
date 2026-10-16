@@ -9,11 +9,14 @@ import {
   createTransaction,
   deleteTransaction,
   fetchExpenseCategoryTotals,
+  fetchMonthlyTrends,
   fetchMonthSummary,
   fetchRecentTransactions,
   fetchTransaction,
+  fetchTransactionsInRange,
   fetchTransactionsPage,
   updateTransaction,
+  type DateRange,
   type PageCursor,
   type Transaction,
 } from './transactions-api';
@@ -28,6 +31,21 @@ export function useTransactionList(filters: TransactionListFilters) {
     initialPageParam: null as PageCursor | null,
     getNextPageParam: (page) => page.nextCursor,
   });
+}
+
+/** All income/expense rows in a range (charts, reports). */
+export function useRangeTransactions(range: DateRange, type: 'income' | 'expense' | null = null) {
+  const start = range.start.toISOString();
+  const end = range.end.toISOString();
+  return useQuery({
+    queryKey: queryKeys.rangeTransactions(start, end, type),
+    queryFn: () => fetchTransactionsInRange(range, type),
+  });
+}
+
+export function useMonthlyTrends(months: number) {
+  const { timeZone } = useRegion();
+  return useQuery({ queryKey: queryKeys.monthlyTrends(months), queryFn: () => fetchMonthlyTrends(months, timeZone) });
 }
 
 export function useRecentTransactions() {
