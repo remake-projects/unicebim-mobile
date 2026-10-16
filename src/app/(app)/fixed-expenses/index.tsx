@@ -18,7 +18,7 @@ export default function FixedExpensesScreen() {
   const format = useFormatMoney();
   const expenses = useFixedExpenses();
 
-  if (expenses.isError) return <ErrorState error={expenses.error} onRetry={() => expenses.refetch()} />;
+  if (expenses.isLoadingError) return <ErrorState error={expenses.error} onRetry={() => expenses.refetch()} />;
   if (!expenses.data) return <LoadingState />;
   const total = roundMoney(expenses.data.reduce((sum, e) => sum + e.amount, 0));
 

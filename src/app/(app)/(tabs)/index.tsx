@@ -32,7 +32,7 @@ import { invalidateLedger, queryKeys } from '@/lib/query-keys';
 
 export default function HomeScreen() {
   const profile = useProfile();
-  if (profile.isError) return <ErrorState error={profile.error} onRetry={() => profile.refetch()} />;
+  if (profile.isLoadingError) return <ErrorState error={profile.error} onRetry={() => profile.refetch()} />;
   if (!profile.data) return <LoadingState />;
   if (needsOnboarding(profile.data)) {
     return (

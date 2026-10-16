@@ -22,7 +22,7 @@ export default function EditWalletScreen() {
   const update = useUpdateWallet();
   const remove = useDeleteWallet();
 
-  if (wallet.isError) return <ErrorState error={wallet.error} onRetry={() => wallet.refetch()} />;
+  if (wallet.isLoadingError) return <ErrorState error={wallet.error} onRetry={() => wallet.refetch()} />;
   if (wallet.isPending) return <LoadingState />;
   if (!wallet.data) return <ErrorState error={new AppError('notFound')} />;
   const w = wallet.data;

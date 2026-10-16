@@ -24,7 +24,7 @@ export default function EditSubscriptionScreen() {
   const update = useUpdateSubscription();
   const remove = useDeleteSubscription();
 
-  if (subscription.isError) return <ErrorState error={subscription.error} onRetry={() => subscription.refetch()} />;
+  if (subscription.isLoadingError) return <ErrorState error={subscription.error} onRetry={() => subscription.refetch()} />;
   if (subscription.isPending) return <LoadingState />;
   if (!subscription.data) return <ErrorState error={new AppError('notFound')} />;
   const s = subscription.data;

@@ -23,7 +23,7 @@ export default function PaymentsScreen() {
   const payments = usePayments();
   const analyses = usePaymentAnalyses();
 
-  if (payments.isError) return <ErrorState error={payments.error} onRetry={() => payments.refetch()} />;
+  if (payments.isLoadingError) return <ErrorState error={payments.error} onRetry={() => payments.refetch()} />;
   if (!payments.data) return <LoadingState />;
   const unpaid = payments.data.filter((p) => !p.isPaid);
   const paid = payments.data.filter((p) => p.isPaid);

@@ -24,12 +24,12 @@ export function useDashboard(): DashboardState {
   const categories = useExpenseCategoryTotals(ym);
   const queries = [profile, wallets, payments, summary, categories];
 
-  const failed = queries.find((q) => q.isError);
+  const failed = queries.find((q) => q.isLoadingError);
   if (failed) {
     return {
       status: 'error',
       error: failed.error,
-      retry: () => queries.forEach((q) => q.isError && q.refetch()),
+      retry: () => queries.forEach((q) => q.isLoadingError && q.refetch()),
     };
   }
   if (!profile.data || !wallets.data || !payments.data || !summary.data || !categories.data) {

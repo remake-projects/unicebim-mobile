@@ -102,7 +102,7 @@ export default function ReportScreen() {
         onChange={setType}
       />
 
-      {report.isError ? (
+      {report.isLoadingError ? (
         <ErrorState error={report.error} onRetry={() => report.refetch()} />
       ) : !report.data || !totals ? (
         <LoadingState />

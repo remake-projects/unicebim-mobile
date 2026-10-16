@@ -16,7 +16,7 @@ export default function TransferScreen() {
   const wallets = useWallets();
   const transfer = useTransfer();
 
-  if (wallets.isError) return <ErrorState error={wallets.error} onRetry={() => wallets.refetch()} />;
+  if (wallets.isLoadingError) return <ErrorState error={wallets.error} onRetry={() => wallets.refetch()} />;
   if (!wallets.data) return <LoadingState />;
   if (wallets.data.length < 2) return <EmptyState message={t('wallets.needTwoWallets')} />;
 

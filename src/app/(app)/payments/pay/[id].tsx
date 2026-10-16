@@ -14,7 +14,7 @@ export default function PayPaymentScreen() {
   const wallets = useWallets();
   const pay = usePayPayment();
 
-  const failed = payment.isError ? payment : wallets.isError ? wallets : null;
+  const failed = payment.isLoadingError ? payment : wallets.isLoadingError ? wallets : null;
   if (failed) return <ErrorState error={failed.error} onRetry={() => failed.refetch()} />;
   if (payment.isPending || !wallets.data) return <LoadingState />;
   if (!payment.data) return <ErrorState error={new AppError('notFound')} />;

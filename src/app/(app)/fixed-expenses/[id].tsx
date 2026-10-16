@@ -22,7 +22,7 @@ export default function EditFixedExpenseScreen() {
   const update = useUpdateFixedExpense();
   const remove = useDeleteFixedExpense();
 
-  if (expense.isError) return <ErrorState error={expense.error} onRetry={() => expense.refetch()} />;
+  if (expense.isLoadingError) return <ErrorState error={expense.error} onRetry={() => expense.refetch()} />;
   if (expense.isPending) return <LoadingState />;
   if (!expense.data) return <ErrorState error={new AppError('notFound')} />;
   const e = expense.data;

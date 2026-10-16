@@ -83,7 +83,7 @@ export function TransactionList({ filters, header }: Props) {
       ListEmptyComponent={
         list.isPending ? (
           <ActivityIndicator style={styles.loading} color={theme.textSecondary} />
-        ) : list.isError ? (
+        ) : list.isLoadingError ? (
           <ErrorState error={list.error} onRetry={() => list.refetch()} />
         ) : (
           <EmptyState message={t('transactions.empty')} />

@@ -17,7 +17,7 @@ export default function NewTransactionScreen() {
   const wallets = useWallets();
   const create = useCreateTransaction();
 
-  if (wallets.isError) return <ErrorState error={wallets.error} onRetry={() => wallets.refetch()} />;
+  if (wallets.isLoadingError) return <ErrorState error={wallets.error} onRetry={() => wallets.refetch()} />;
   if (!wallets.data) return <LoadingState />;
 
   const preselected = wallets.data.find((w) => w.id === walletId) ?? wallets.data.find((w) => w.isDefault);

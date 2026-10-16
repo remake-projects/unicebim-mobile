@@ -41,7 +41,7 @@ export default function BankImportScreen() {
   const [picking, setPicking] = useState(false);
   const [result, setResult] = useState<ImportResult | null>(null);
 
-  if (wallets.isError) return <ErrorState error={wallets.error} onRetry={() => wallets.refetch()} />;
+  if (wallets.isLoadingError) return <ErrorState error={wallets.error} onRetry={() => wallets.refetch()} />;
   if (!wallets.data) return <LoadingState />;
   const targetWallet = walletId ?? wallets.data.find((w) => w.isDefault)?.id ?? wallets.data[0]?.id ?? null;
 

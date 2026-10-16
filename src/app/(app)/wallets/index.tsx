@@ -19,7 +19,7 @@ export default function WalletsScreen() {
   const format = useFormatMoney();
   const wallets = useWallets();
 
-  if (wallets.isError) return <ErrorState error={wallets.error} onRetry={() => wallets.refetch()} />;
+  if (wallets.isLoadingError) return <ErrorState error={wallets.error} onRetry={() => wallets.refetch()} />;
   if (!wallets.data) return <LoadingState />;
   const total = roundMoney(wallets.data.reduce((sum, w) => sum + w.balance, 0));
 

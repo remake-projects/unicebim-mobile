@@ -21,7 +21,7 @@ export default function SubscriptionsScreen() {
   const today = todayYmd(timeZone);
   const subscriptions = useSubscriptions();
 
-  if (subscriptions.isError) return <ErrorState error={subscriptions.error} onRetry={() => subscriptions.refetch()} />;
+  if (subscriptions.isLoadingError) return <ErrorState error={subscriptions.error} onRetry={() => subscriptions.refetch()} />;
   if (!subscriptions.data) return <LoadingState />;
   const monthly = monthlySubscriptionsTotal(subscriptions.data);
 

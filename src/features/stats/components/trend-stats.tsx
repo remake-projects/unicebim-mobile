@@ -19,7 +19,7 @@ export function TrendStats() {
   const format = useFormatMoney();
   const trends = useMonthlyTrends(TREND_MONTHS);
 
-  if (trends.isError) return <ErrorState error={trends.error} onRetry={() => trends.refetch()} />;
+  if (trends.isLoadingError) return <ErrorState error={trends.error} onRetry={() => trends.refetch()} />;
   if (!trends.data) return <LoadingState />;
   const summary = summarizeTrend(trends.data);
   const change = summary.expenseChangePercent;

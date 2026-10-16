@@ -33,7 +33,7 @@ export default function WalletDetailScreen() {
   const summary = useMonthSummary(ym, id);
   const setDefault = useSetDefaultWallet();
 
-  if (wallet.isError) return <ErrorState error={wallet.error} onRetry={() => wallet.refetch()} />;
+  if (wallet.isLoadingError) return <ErrorState error={wallet.error} onRetry={() => wallet.refetch()} />;
   if (wallet.isPending) return <LoadingState />;
   if (!wallet.data) return <ErrorState error={new AppError('notFound')} />;
   const w = wallet.data;

@@ -28,7 +28,7 @@ export default function PaymentScreen() {
   const unpay = useUnpayPayment();
   const remove = useDeletePayment();
 
-  if (payment.isError) return <ErrorState error={payment.error} onRetry={() => payment.refetch()} />;
+  if (payment.isLoadingError) return <ErrorState error={payment.error} onRetry={() => payment.refetch()} />;
   if (payment.isPending) return <LoadingState />;
   if (!payment.data) return <ErrorState error={new AppError('notFound')} />;
   const p = payment.data;

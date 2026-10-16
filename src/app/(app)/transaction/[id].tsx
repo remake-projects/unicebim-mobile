@@ -25,7 +25,7 @@ export default function EditTransactionScreen() {
   const update = useUpdateTransaction(transaction.data);
   const remove = useDeleteTransaction();
 
-  const failed = transaction.isError ? transaction : wallets.isError ? wallets : null;
+  const failed = transaction.isLoadingError ? transaction : wallets.isLoadingError ? wallets : null;
   if (failed) return <ErrorState error={failed.error} onRetry={() => failed.refetch()} />;
   if (!transaction.data || !wallets.data) return <LoadingState />;
   const tx = transaction.data;

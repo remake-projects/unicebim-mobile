@@ -37,8 +37,8 @@ export function MonthStats({ ym }: { ym: YearMonth }) {
   });
 
   const queries = [summary, categories, month, ...(isCurrent ? [weeks] : [])];
-  const failed = queries.find((q) => q.isError);
-  if (failed) return <ErrorState error={failed.error} onRetry={() => queries.forEach((q) => q.isError && q.refetch())} />;
+  const failed = queries.find((q) => q.isLoadingError);
+  if (failed) return <ErrorState error={failed.error} onRetry={() => queries.forEach((q) => q.isLoadingError && q.refetch())} />;
   if (!summary.data || !categories.data || !month.data || (isCurrent && !weeks.data)) return <LoadingState />;
 
   return (

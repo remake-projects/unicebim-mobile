@@ -11,7 +11,7 @@ export default function RegionSettingsScreen() {
   const profile = useProfile();
   const update = useUpdateRegionSettings();
 
-  if (profile.isError) return <ErrorState error={profile.error} onRetry={() => profile.refetch()} />;
+  if (profile.isLoadingError) return <ErrorState error={profile.error} onRetry={() => profile.refetch()} />;
   if (!profile.data) return <LoadingState />;
 
   return (
