@@ -1,3 +1,5 @@
+import { File } from 'expo-file-system';
+
 import { toFiniteNumber } from '@/core/number';
 import type { BudgetSettingsInput, RegionSettingsInput } from '@/core/schemas/profile';
 import type { Ymd } from '@/core/time';
@@ -89,7 +91,8 @@ async function removeAvatarFile(url: string | null): Promise<void> {
  * Each upload gets a new name, so cached copies of the old picture are never shown for the new one.
  */
 export async function uploadAvatar(userId: string, fileUri: string, previousUrl: string | null): Promise<Profile> {
-  const body = await fetch(fileUri).then((r) => r.arrayBuffer());
+  // Same local-file reader as the bank import.
+  const body = await new File(fileUri).bytes();
   const path = `${userId}/${Date.now()}.jpg`;
   const bucket = supabase.storage.from(AVATAR_BUCKET);
   unwrap(await bucket.upload(path, body, { contentType: 'image/jpeg' }));
