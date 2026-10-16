@@ -291,7 +291,7 @@ supabase/migrations/         # SQL migration'lar (docs/supabase.sql'in yerini al
 | Radix Dialog/Sheet/Dropdown | Expo Router `presentation: 'modal'` ekranları + native `Alert` | Formlar modal ekran (header'lı, iki platformda tutarlı); ek bottom-sheet kütüphanesi gerekmedi |
 | `lucide-react` | Kategorilerde emoji (`features/transactions/category-meta.ts`), tab'larda SF Symbols / Material ikonları | Ek ikon fontu yok; ileride `lucide-react-native` eklenebilir |
 | `motion` | `react-native-reanimated` | |
-| `recharts` | `victory-native` (Skia) veya `react-native-gifted-charts` | 6 grafik türü yeniden yazılır |
+| `recharts` | Kendi `components/charts` bileşenleri (düz View çubukları) | Gruplu dikey çubuk + pasta yerine sıralı pay çubukları; Skia/SVG bağımlılığı yok. Çizgi grafik vb. gerekirse `victory-native` değerlendirilir |
 | `sonner` | `sonner-native` veya `burnt` | |
 | `next-themes` | `useColorScheme` + kalıcı tema tercihi | |
 | `@supabase/ssr` | `@supabase/supabase-js` + `expo-sqlite/localStorage` (Expo'nun resmi Supabase rehberi) | `AppState` değişiminde `startAutoRefresh/stopAutoRefresh`; PKCE akışı |
@@ -299,10 +299,10 @@ supabase/migrations/         # SQL migration'lar (docs/supabase.sql'in yerini al
 | `react-hook-form` + `zod` | aynen | RN `TextInput` ile `useController` |
 | Tarih seçici | `@expo/ui/community/datetime-picker` | iOS'ta compact, Android'de Material dialog; değer her zaman `YYYY-MM-DD` |
 | `zustand` | aynen (UI state: seçili ay, tema, filtre) | |
-| `react-dropzone` | `expo-document-picker` | |
-| `xlsx`, `papaparse` | SheetJS + papaparse (cihazda) | npm'deki `xlsx@0.18.5` bakımsız ve bilinen açıkları var; SheetJS'in resmi dağıtımından güncel sürüm kullanılmalı |
-| `html-to-image` | `react-native-view-shot` | |
-| Blob download | `expo-file-system` + `expo-sharing` | |
+| `react-dropzone` | `expo-document-picker` + `expo-file-system` (`File.bytes()`) | |
+| `xlsx`, `papaparse` | SheetJS 0.20.3 (resmi CDN tarball'ı, cihazda) | npm'deki `xlsx@0.18.5` bakımsız ve açıklı. Bankalar Excel verdiği için papaparse/CSV eklenmedi. Bundle'a ~1MB ekliyor |
+| `html-to-image` | — (hesap bölüştürücü sonucu RN `Share` ile metin olarak paylaşılır) | PNG fiş yerine mesajlaşma uygulamalarına uygun metin |
+| Blob download | `expo-file-system` + `expo-sharing` | Rapor CSV'si cache'e yazılıp paylaşma menüsüyle açılır |
 | `next/image` | `expo-image` | Abonelik logoları (unavatar.io, `fallback=false` → yüklenemezse baş harf) ve avatar; disk cache |
 | Avatar yükleme (`<input type=file>`) | `expo-image-picker` + `expo-image-manipulator` | Kare kırpma, 512px JPEG'e küçültme; iOS'ta sistem seçicisi izin istemez, izin metni yine de `app.json`'da |
 | `@sentry/nextjs` | `@sentry/react-native` | |
@@ -471,8 +471,8 @@ Mobil dashboard'u tasarlamadan önce bu tanımlar netleştirilmeli.
 | **2 — İskelet** | Expo + Expo Router + TanStack Query + Supabase client + i18n; auth akışı (login/register/doğrulama deep link/parola sıfırlama); tema; tab bar + FAB; Sentry | Giriş yapıp boş tab'larda gezilebilen uygulama | ✅ (Sentry ve yüzen "+" hariç) |
 | **3 — Çekirdek** | Dashboard (+ onboarding), işlem ekle/düzenle/sil, işlem listesi (ay, sayfalama, filtre), cüzdanlar + transfer + detay | Günlük kullanım için yeterli MVP | ✅ (cihazda denenmedi; optimistic update yok) |
 | **4 — Planlama** | Gelecek ödemeler (+ öde akışı), abonelikler (logo), sabit giderler, bütçe ayarları, profil + avatar + parola + **hesap silme** | Web ile özellik eşitliğinin büyük kısmı | ✅ (cihazda denenmedi; `avatars` migration'ı projeye uygulanmayı bekliyor) |
-| **5 — Analiz & araçlar** | İstatistik/grafikler, rapor + paylaş, banka dökümü içe aktarma, hesap bölüştürücü | Tam özellik eşitliği | Sıradaki |
-| **6 — Mobil artıları** | Yerel bildirimler, biyometrik kilit, offline yazma kuyruğu, widget | Web'den daha iyi deneyim | — |
+| **5 — Analiz & araçlar** | İstatistik/grafikler, rapor + paylaş, banka dökümü içe aktarma, hesap bölüştürücü | Tam özellik eşitliği | ✅ (cihazda denenmedi) |
+| **6 — Mobil artıları** | Yerel bildirimler, biyometrik kilit, offline yazma kuyruğu, widget | Web'den daha iyi deneyim | Sıradaki |
 | **7 — Yayın** | Store metinleri, gizlilik formları, ikon/splash, EAS submit, beta (TestFlight / internal testing) | Store'da uygulama | — |
 
 ---
@@ -494,6 +494,9 @@ Mobil dashboard'u tasarlamadan önce bu tanımlar netleştirilmeli.
 | 2026-10-16 | Bütçe hedefi ayarlarda da zorunlu (silinirse ana sayfa onboarding'e döner) | — |
 | 2026-10-16 | Parola değişikliğinde mevcut parola, onunla yeniden giriş yapılarak doğrulanır (Supabase sormuyor) | §6.1 |
 | 2026-10-16 | Ödenen ödeme silinince kaydedilen gider işlemlerde kalır; "geri al" gideri siler ve tutarı cüzdana iade eder | B6 |
+| 2026-10-16 | İstatistik tek ekranda iki görünüm: "Aylık" (özet, kategori payları, günlük harcama, bu hafta/geçen hafta) ve "Son 6 ay" (`get_monthly_trends`) | §6.3 |
+| 2026-10-16 | Rapor: tarih aralığı + tür filtresi → CSV (UTF-8 BOM, çevrilmiş sütunlar) paylaşılır; web'deki JSON/HTML çıktıları ve bölüm seçimi alınmadı | §1.3 |
+| 2026-10-16 | Banka içe aktarma önizlemesinde satır çıkarılabilir; kategori düzenleme önizlemede yok (sonra işlemden düzenlenir); negatif son bakiye eşitleme için önerilmez (cüzdan eksiye düşemez) | B7 |
 
 | 2026-10-13 | Cüzdan bakiyesi **eksiye düşemez** (`CHECK (balance >= 0)` korunur); yetersiz bakiyede işlem net hata ile reddedilir | B1/B2 |
 | 2026-10-13 | Transfer: `transactions` içinde `kind = 'transfer'` + ortak `transfer_group_id` ile iki kayıt; istatistiklerde sayılmaz | B3/B4 |

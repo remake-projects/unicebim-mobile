@@ -14,8 +14,8 @@ src/
   app/          Expo Router ekranları (dosya = ekran); (auth) oturumsuz, (app) oturumlu grup (tab'lar + modal formlar)
   core/         Platformdan bağımsız iş mantığı (kategoriler, para, saat dilimi, şemalar, hesaplamalar) — testli
   features/     Özellik bazlı API modülleri, TanStack Query hook'ları ve bileşenler (auth, profile, wallets, transactions,
-                dashboard, payments, subscriptions, fixed-expenses)
-  components/   UI bileşenleri (components/ui: form ve ekran primitifleri)
+                dashboard, payments, subscriptions, fixed-expenses, stats, report, bank-import, bill-splitter)
+  components/   UI bileşenleri (components/ui: form ve ekran primitifleri, components/charts: grafikler)
   i18n/         Türkçe + İngilizce çeviriler (tip kontrollü anahtarlar)
   lib/          Supabase istemcisi, env, cihaz bölgesi, query client + sorgu anahtarları, hata eşleme
   data/         Supabase veritabanı tipleri
