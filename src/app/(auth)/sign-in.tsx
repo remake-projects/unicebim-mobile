@@ -4,10 +4,11 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 
+import { BrandMark } from '@/components/brand-mark';
 import { ThemedText } from '@/components/themed-text';
 import { Button } from '@/components/ui/button';
 import { FormMessage } from '@/components/ui/form-message';
-import { FormTextField } from '@/components/ui/form-text-field';
+import { focusNext, FormTextField, submitOnDone } from '@/components/ui/form-text-field';
 import { Screen } from '@/components/ui/screen';
 import { loginSchema, type LoginInput } from '@/core/schemas/auth';
 import { signIn } from '@/features/auth/auth-api';
@@ -16,7 +17,7 @@ import { AuthFailure } from '@/features/auth/auth-errors';
 export default function SignInScreen() {
   const { t } = useTranslation();
   const [serverError, setServerError] = useState<string | null>(null);
-  const { control, handleSubmit, formState } = useForm<LoginInput>({
+  const { control, handleSubmit, formState, setFocus } = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
     defaultValues: { email: '', password: '' },
   });
@@ -37,6 +38,7 @@ export default function SignInScreen() {
 
   return (
     <Screen centered>
+      <BrandMark />
       <ThemedText type="subtitle">{t('auth.signIn.title')}</ThemedText>
       <ThemedText themeColor="textSecondary">{t('auth.signIn.subtitle')}</ThemedText>
 
@@ -48,6 +50,7 @@ export default function SignInScreen() {
         autoComplete="email"
         keyboardType="email-address"
         textContentType="emailAddress"
+        {...focusNext(setFocus, 'password')}
       />
       <FormTextField
         control={control}
@@ -56,7 +59,7 @@ export default function SignInScreen() {
         secureTextEntry
         autoComplete="current-password"
         textContentType="password"
-        onSubmitEditing={onSubmit}
+        {...submitOnDone(onSubmit)}
       />
       <FormMessage message={serverError} />
       <Button title={t('auth.signIn.submit')} loading={formState.isSubmitting} onPress={onSubmit} />

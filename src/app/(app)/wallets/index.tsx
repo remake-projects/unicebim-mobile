@@ -4,6 +4,7 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { IconTile } from '@/components/ui/icon';
 import { MenuRow } from '@/components/ui/menu-row';
 import { Screen, UNDER_HEADER_EDGES } from '@/components/ui/screen';
 import { ErrorState, LoadingState } from '@/components/ui/state-views';
@@ -33,6 +34,7 @@ export default function WalletsScreen() {
         {wallets.data.map((w) => (
           <MenuRow
             key={w.id}
+            leading={<IconTile name="wallet" />}
             title={w.name}
             subtitle={w.isDefault ? t('wallets.isDefault') : undefined}
             detail={format(w.balance)}

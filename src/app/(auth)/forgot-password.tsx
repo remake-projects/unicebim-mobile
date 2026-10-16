@@ -7,7 +7,7 @@ import type { z } from 'zod';
 import { ThemedText } from '@/components/themed-text';
 import { Button } from '@/components/ui/button';
 import { FormMessage } from '@/components/ui/form-message';
-import { FormTextField } from '@/components/ui/form-text-field';
+import { FormTextField, submitOnDone } from '@/components/ui/form-text-field';
 import { Screen } from '@/components/ui/screen';
 import { resetPasswordRequestSchema } from '@/core/schemas/auth';
 import { requestPasswordReset } from '@/features/auth/auth-api';
@@ -45,7 +45,7 @@ export default function ForgotPasswordScreen() {
         autoComplete="email"
         keyboardType="email-address"
         textContentType="emailAddress"
-        onSubmitEditing={onSubmit}
+        {...submitOnDone(onSubmit)}
       />
       <FormMessage message={message?.text} tone={message?.tone} />
       <Button title={t('auth.forgotPassword.submit')} loading={formState.isSubmitting} onPress={onSubmit} />

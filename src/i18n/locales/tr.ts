@@ -14,6 +14,8 @@ const tr = {
     edit: 'Düzenle',
     saved: 'Kaydedildi.',
     optional: 'İsteğe bağlı',
+    showPassword: 'Parolayı göster',
+    hidePassword: 'Parolayı gizle',
   },
   tabs: {
     home: 'Ana Sayfa',

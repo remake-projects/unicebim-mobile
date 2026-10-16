@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 
 import { Button } from '@/components/ui/button';
 import { FormMessage } from '@/components/ui/form-message';
-import { FormTextField } from '@/components/ui/form-text-field';
+import { focusNext, FormTextField, submitOnDone } from '@/components/ui/form-text-field';
 import { Screen, UNDER_HEADER_EDGES } from '@/components/ui/screen';
 import { newPasswordSchema, type NewPasswordInput } from '@/core/schemas/auth';
 import { updatePassword } from '@/features/auth/auth-api';
@@ -17,7 +17,7 @@ export default function ResetPasswordScreen() {
     await updatePassword(newPassword);
     router.replace('/');
   });
-  const { control, handleSubmit, formState } = useForm<NewPasswordInput>({
+  const { control, handleSubmit, formState, setFocus } = useForm<NewPasswordInput>({
     resolver: zodResolver(newPasswordSchema),
     defaultValues: { newPassword: '', confirmPassword: '' },
   });
@@ -31,6 +31,7 @@ export default function ResetPasswordScreen() {
         secureTextEntry
         autoComplete="new-password"
         textContentType="newPassword"
+        {...focusNext(setFocus, 'confirmPassword')}
       />
       <FormTextField
         control={control}
@@ -39,6 +40,7 @@ export default function ResetPasswordScreen() {
         secureTextEntry
         autoComplete="new-password"
         textContentType="newPassword"
+        {...submitOnDone(handleSubmit(submit))}
       />
       <FormMessage message={error} />
       <Button title={t('auth.resetPassword.submit')} loading={formState.isSubmitting} onPress={handleSubmit(submit)} />

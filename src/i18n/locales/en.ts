@@ -15,6 +15,8 @@ const en: Translations = {
     edit: 'Edit',
     saved: 'Saved.',
     optional: 'Optional',
+    showPassword: 'Show password',
+    hidePassword: 'Hide password',
   },
   tabs: {
     home: 'Home',

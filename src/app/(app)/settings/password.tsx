@@ -6,7 +6,7 @@ import { Alert } from 'react-native';
 
 import { Button } from '@/components/ui/button';
 import { FormMessage } from '@/components/ui/form-message';
-import { FormTextField } from '@/components/ui/form-text-field';
+import { focusNext, FormTextField, submitOnDone } from '@/components/ui/form-text-field';
 import { Screen, UNDER_HEADER_EDGES } from '@/components/ui/screen';
 import { changePasswordSchema, type ChangePasswordInput } from '@/core/schemas/auth';
 import { changePassword } from '@/features/auth/auth-api';
@@ -21,7 +21,7 @@ export default function ChangePasswordScreen() {
     Alert.alert(t('profile.passwordChanged'));
     router.back();
   });
-  const { control, handleSubmit, formState } = useForm<ChangePasswordInput>({
+  const { control, handleSubmit, formState, setFocus } = useForm<ChangePasswordInput>({
     resolver: zodResolver(changePasswordSchema),
     defaultValues: { currentPassword: '', newPassword: '', confirmPassword: '' },
   });
@@ -35,6 +35,7 @@ export default function ChangePasswordScreen() {
         secureTextEntry
         autoComplete="current-password"
         textContentType="password"
+        {...focusNext(setFocus, 'newPassword')}
       />
       <FormTextField
         control={control}
@@ -43,6 +44,7 @@ export default function ChangePasswordScreen() {
         secureTextEntry
         autoComplete="new-password"
         textContentType="newPassword"
+        {...focusNext(setFocus, 'confirmPassword')}
       />
       <FormTextField
         control={control}
@@ -51,6 +53,7 @@ export default function ChangePasswordScreen() {
         secureTextEntry
         autoComplete="new-password"
         textContentType="newPassword"
+        {...submitOnDone(handleSubmit(submit))}
       />
       <FormMessage message={error} />
       <Button title={t('profile.changePassword')} loading={formState.isSubmitting} onPress={handleSubmit(submit)} />

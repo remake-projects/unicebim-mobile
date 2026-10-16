@@ -23,6 +23,8 @@ const ICONS = {
   globe: { ios: 'globe', android: 'language' },
   lock: { ios: 'lock', android: 'lock' },
   receipt: { ios: 'list.bullet.rectangle', android: 'receipt_long' },
+  eye: { ios: 'eye', android: 'visibility' },
+  eyeSlash: { ios: 'eye.slash', android: 'visibility_off' },
 } as const satisfies Record<string, PlatformSymbol>;
 
 export type IconName = keyof typeof ICONS;

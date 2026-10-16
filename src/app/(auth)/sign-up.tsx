@@ -4,12 +4,13 @@ import { useState } from 'react';
 import { useController, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 
+import { BrandMark } from '@/components/brand-mark';
 import { ThemedText } from '@/components/themed-text';
 import { LegalLinks } from '@/components/legal-links';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { FormMessage } from '@/components/ui/form-message';
-import { FormTextField } from '@/components/ui/form-text-field';
+import { focusNext, FormTextField } from '@/components/ui/form-text-field';
 import { Screen } from '@/components/ui/screen';
 import { registerSchema, type RegisterFormInput, type RegisterInput } from '@/core/schemas/auth';
 import { signUp } from '@/features/auth/auth-api';
@@ -19,7 +20,7 @@ import { getDeviceRegion } from '@/lib/region';
 export default function SignUpScreen() {
   const { t } = useTranslation();
   const [serverError, setServerError] = useState<string | null>(null);
-  const { control, handleSubmit, formState } = useForm<RegisterFormInput, unknown, RegisterInput>({
+  const { control, handleSubmit, formState, setFocus } = useForm<RegisterFormInput, unknown, RegisterInput>({
     resolver: zodResolver(registerSchema),
     defaultValues: { fullName: '', email: '', password: '', passwordConfirm: '', acceptTerms: false },
   });
@@ -43,10 +44,18 @@ export default function SignUpScreen() {
 
   return (
     <Screen centered>
+      <BrandMark />
       <ThemedText type="subtitle">{t('auth.signUp.title')}</ThemedText>
       <ThemedText themeColor="textSecondary">{t('auth.signUp.subtitle')}</ThemedText>
 
-      <FormTextField control={control} name="fullName" label={t('auth.fullName')} autoComplete="name" textContentType="name" />
+      <FormTextField
+        control={control}
+        name="fullName"
+        label={t('auth.fullName')}
+        autoComplete="name"
+        textContentType="name"
+        {...focusNext(setFocus, 'email')}
+      />
       <FormTextField
         control={control}
         name="email"
@@ -55,6 +64,7 @@ export default function SignUpScreen() {
         autoComplete="email"
         keyboardType="email-address"
         textContentType="emailAddress"
+        {...focusNext(setFocus, 'password')}
       />
       <FormTextField
         control={control}
@@ -63,6 +73,7 @@ export default function SignUpScreen() {
         secureTextEntry
         autoComplete="new-password"
         textContentType="newPassword"
+        {...focusNext(setFocus, 'passwordConfirm')}
       />
       <FormTextField
         control={control}
