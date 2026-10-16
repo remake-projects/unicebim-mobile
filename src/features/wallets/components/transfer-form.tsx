@@ -1,20 +1,21 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useState } from 'react';
 import { useController, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { Button } from '@/components/ui/button';
 import { ChoiceChips } from '@/components/ui/choice-chips';
+import { FieldGroup } from '@/components/ui/field-group';
 import { FormDateField } from '@/components/ui/form-date-field';
 import { FormMessage } from '@/components/ui/form-message';
 import { FormTextField } from '@/components/ui/form-text-field';
 import { Spacing } from '@/constants/theme';
 import { transferSchema, type TransferFormInput, type TransferInput } from '@/core/schemas/wallet';
 import { todayYmd } from '@/core/time';
-import { useFormatMoney, useRegion } from '@/features/profile/use-region';
-import { useTheme } from '@/hooks/use-theme';
-import { errorMessage, validationMessage } from '@/i18n/messages';
+import { useRegion } from '@/features/profile/use-region';
+import { useFormSubmit } from '@/hooks/use-form-submit';
+import { validationMessage } from '@/i18n/messages';
+import { useWalletOptions } from '../use-wallet-options';
 import type { Wallet } from '../wallets-api';
 
 type Props = {
@@ -25,43 +26,25 @@ type Props = {
 
 export function TransferForm({ wallets, defaultValues, onSubmit }: Props) {
   const { t } = useTranslation();
-  const theme = useTheme();
-  const format = useFormatMoney();
   const { timeZone, locale } = useRegion();
-  const [serverError, setServerError] = useState<string | null>(null);
+  const { error, submit } = useFormSubmit(onSubmit);
   const { control, handleSubmit, formState } = useForm<TransferFormInput, unknown, TransferInput>({
     resolver: zodResolver(transferSchema),
     defaultValues,
   });
   const from = useController({ control, name: 'fromWalletId' });
   const to = useController({ control, name: 'toWalletId' });
-  const options = wallets.map((w) => ({ value: w.id, label: `${w.name} · ${format(w.balance)}` }));
+  const options = useWalletOptions(wallets);
   const today = todayYmd(timeZone);
-
-  const submit = handleSubmit(async (values) => {
-    setServerError(null);
-    try {
-      await onSubmit(values);
-    } catch (error) {
-      setServerError(errorMessage(t, error));
-    }
-  });
 
   return (
     <View style={styles.form}>
-      <View style={styles.group}>
-        <Text style={[styles.label, { color: theme.text }]}>{t('wallets.from')}</Text>
+      <FieldGroup label={t('wallets.from')}>
         <ChoiceChips options={options} value={from.field.value || null} onChange={from.field.onChange} />
-      </View>
-      <View style={styles.group}>
-        <Text style={[styles.label, { color: theme.text }]}>{t('wallets.to')}</Text>
+      </FieldGroup>
+      <FieldGroup label={t('wallets.to')} error={validationMessage(t, to.fieldState.error?.message)}>
         <ChoiceChips options={options} value={to.field.value || null} onChange={to.field.onChange} />
-        {to.fieldState.error ? (
-          <Text style={[styles.error, { color: theme.danger }]}>
-            {validationMessage(t, to.fieldState.error.message)}
-          </Text>
-        ) : null}
-      </View>
+      </FieldGroup>
       <FormTextField
         control={control}
         name="amount"
@@ -78,15 +61,12 @@ export function TransferForm({ wallets, defaultValues, onSubmit }: Props) {
         maximumDate={today}
         locale={locale}
       />
-      <FormMessage message={serverError} />
-      <Button title={t('wallets.transfer')} loading={formState.isSubmitting} onPress={submit} />
+      <FormMessage message={error} />
+      <Button title={t('wallets.transfer')} loading={formState.isSubmitting} onPress={handleSubmit(submit)} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   form: { gap: Spacing.three },
-  group: { gap: Spacing.two },
-  label: { fontSize: 14, fontWeight: 600 },
-  error: { fontSize: 13 },
 });

@@ -1,11 +1,11 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useState } from 'react';
 import { useController, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { Button } from '@/components/ui/button';
 import { ChoiceChips } from '@/components/ui/choice-chips';
+import { FieldGroup } from '@/components/ui/field-group';
 import { FormDateField } from '@/components/ui/form-date-field';
 import { FormMessage } from '@/components/ui/form-message';
 import { FormTextField } from '@/components/ui/form-text-field';
@@ -19,10 +19,11 @@ import {
 } from '@/core/schemas/transaction';
 import { DESCRIPTION_MAX_LENGTH } from '@/core/validation';
 import { todayYmd } from '@/core/time';
-import { useFormatMoney, useRegion } from '@/features/profile/use-region';
+import { useRegion } from '@/features/profile/use-region';
+import { useWalletOptions } from '@/features/wallets/use-wallet-options';
 import type { Wallet } from '@/features/wallets/wallets-api';
-import { useTheme } from '@/hooks/use-theme';
-import { errorMessage, validationMessage } from '@/i18n/messages';
+import { useFormSubmit } from '@/hooks/use-form-submit';
+import { validationMessage } from '@/i18n/messages';
 import { CategoryPicker } from './category-picker';
 
 const NO_WALLET = 'none';
@@ -37,10 +38,8 @@ type Props = {
 /** Add / edit form: type, amount, category, wallet, date and note. */
 export function TransactionForm({ defaultValues, wallets, submitLabel, onSubmit }: Props) {
   const { t } = useTranslation();
-  const theme = useTheme();
   const { timeZone, locale } = useRegion();
-  const format = useFormatMoney();
-  const [serverError, setServerError] = useState<string | null>(null);
+  const { error, submit } = useFormSubmit(onSubmit);
   const { control, handleSubmit, formState, setValue } = useForm<TransactionFormInput, unknown, TransactionInput>({
     resolver: zodResolver(transactionSchema),
     defaultValues,
@@ -56,20 +55,12 @@ export function TransactionForm({ defaultValues, wallets, submitLabel, onSubmit 
     if (!isCategoryForType(next, category.field.value)) setValue('category', '');
   }
 
+  const baseWalletOptions = useWalletOptions(wallets);
   const walletOptions = [
-    ...wallets.map((w) => ({ value: w.id, label: `${w.name} · ${format(w.balance)}` })),
+    ...baseWalletOptions,
     // Only offered when editing an entry that has no wallet.
     ...(wallet.field.value ? [] : [{ value: NO_WALLET, label: t('transactions.noWallet') }]),
   ];
-
-  const submit = handleSubmit(async (values) => {
-    setServerError(null);
-    try {
-      await onSubmit(values);
-    } catch (error) {
-      setServerError(errorMessage(t, error));
-    }
-  });
 
   return (
     <View style={styles.form}>
@@ -91,24 +82,22 @@ export function TransactionForm({ defaultValues, wallets, submitLabel, onSubmit 
         style={styles.amount}
       />
 
-      <View style={styles.group}>
-        <Text style={[styles.label, { color: theme.text }]}>{t('transactions.category')}</Text>
+      <FieldGroup label={t('transactions.category')}>
         <CategoryPicker
           type={type.field.value}
           value={category.field.value}
           onChange={category.field.onChange}
           error={validationMessage(t, category.fieldState.error?.message)}
         />
-      </View>
+      </FieldGroup>
 
-      <View style={styles.group}>
-        <Text style={[styles.label, { color: theme.text }]}>{t('transactions.wallet')}</Text>
+      <FieldGroup label={t('transactions.wallet')}>
         <ChoiceChips
           options={walletOptions}
           value={wallet.field.value ?? NO_WALLET}
           onChange={(id) => wallet.field.onChange(id === NO_WALLET ? null : id)}
         />
-      </View>
+      </FieldGroup>
 
       <FormDateField
         control={control}
@@ -127,15 +116,13 @@ export function TransactionForm({ defaultValues, wallets, submitLabel, onSubmit 
         multiline
       />
 
-      <FormMessage message={serverError} />
-      <Button title={submitLabel} loading={formState.isSubmitting} onPress={submit} />
+      <FormMessage message={error} />
+      <Button title={submitLabel} loading={formState.isSubmitting} onPress={handleSubmit(submit)} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   form: { gap: Spacing.three },
-  group: { gap: Spacing.two },
-  label: { fontSize: 14, fontWeight: 600 },
   amount: { fontSize: 28, fontWeight: 700, minHeight: 64 },
 });

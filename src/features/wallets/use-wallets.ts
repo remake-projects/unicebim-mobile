@@ -4,6 +4,7 @@ import type { TransferInput, UpdateWalletInput, WalletInput } from '@/core/schem
 import { useUserId } from '@/features/auth/auth-provider';
 import { useRegion } from '@/features/profile/use-region';
 import { invalidateLedger, queryKeys } from '@/lib/query-keys';
+import { useInvalidatingMutation } from '@/lib/use-invalidating-mutation';
 import {
   createWallet,
   deleteWallet,
@@ -27,25 +28,17 @@ export function useWallet(id: string) {
   });
 }
 
-function useWalletsInvalidation() {
-  const client = useQueryClient();
-  return () => client.invalidateQueries({ queryKey: queryKeys.wallets });
-}
-
 export function useCreateWallet() {
   const userId = useUserId();
-  const onSuccess = useWalletsInvalidation();
-  return useMutation({ mutationFn: (input: WalletInput) => createWallet(userId, input), onSuccess });
+  return useInvalidatingMutation((input: WalletInput) => createWallet(userId, input), [queryKeys.wallets]);
 }
 
 export function useUpdateWallet() {
-  const onSuccess = useWalletsInvalidation();
-  return useMutation({ mutationFn: (input: UpdateWalletInput) => updateWallet(input), onSuccess });
+  return useInvalidatingMutation((input: UpdateWalletInput) => updateWallet(input), [queryKeys.wallets]);
 }
 
 export function useSetDefaultWallet() {
-  const onSuccess = useWalletsInvalidation();
-  return useMutation({ mutationFn: (id: string) => setDefaultWallet(id), onSuccess });
+  return useInvalidatingMutation((id: string) => setDefaultWallet(id), [queryKeys.wallets]);
 }
 
 export function useDeleteWallet() {

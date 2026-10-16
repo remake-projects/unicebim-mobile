@@ -1,9 +1,9 @@
 import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { Alert, StyleSheet, Text } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
 
-import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { ConfirmButton } from '@/components/ui/confirm-button';
 import { Screen, UNDER_HEADER_EDGES } from '@/components/ui/screen';
 import { ErrorState, LoadingState } from '@/components/ui/state-views';
 import { formatMoneyInput } from '@/core/money';
@@ -11,12 +11,9 @@ import { ymdInZone } from '@/core/time';
 import { useRegion } from '@/features/profile/use-region';
 import { AmountText } from '@/features/transactions/components/amount-text';
 import { TransactionForm } from '@/features/transactions/components/transaction-form';
-import type { Transaction } from '@/features/transactions/transactions-api';
 import { useDeleteTransaction, useTransaction, useUpdateTransaction } from '@/features/transactions/use-transactions';
 import { useWallets } from '@/features/wallets/use-wallets';
 import { useTheme } from '@/hooks/use-theme';
-import { errorMessage } from '@/i18n/messages';
-import { confirmDestructive } from '@/lib/confirm';
 
 export default function EditTransactionScreen() {
   const { t } = useTranslation();
@@ -33,24 +30,16 @@ export default function EditTransactionScreen() {
   if (!transaction.data || !wallets.data) return <LoadingState />;
   const tx = transaction.data;
 
-  async function onDelete(target: Transaction) {
-    const confirmed = await confirmDestructive({
-      title: t(target.isTransfer ? 'transactions.deleteTransferTitle' : 'transactions.deleteTitle'),
-      message: t(target.isTransfer ? 'transactions.deleteTransferMessage' : 'transactions.deleteMessage'),
-      confirmLabel: t('common.delete'),
-      cancelLabel: t('common.cancel'),
-    });
-    if (!confirmed) return;
-    try {
-      await remove.mutateAsync(target);
-      router.back();
-    } catch (error) {
-      Alert.alert(errorMessage(t, error));
-    }
-  }
-
   const deleteButton = (
-    <Button variant="ghost" title={t('common.delete')} loading={remove.isPending} onPress={() => onDelete(tx)} />
+    <ConfirmButton
+      title={t('common.delete')}
+      confirmTitle={t(tx.isTransfer ? 'transactions.deleteTransferTitle' : 'transactions.deleteTitle')}
+      confirmMessage={t(tx.isTransfer ? 'transactions.deleteTransferMessage' : 'transactions.deleteMessage')}
+      onConfirm={async () => {
+        await remove.mutateAsync(tx);
+        router.back();
+      }}
+    />
   );
 
   if (tx.isTransfer) {

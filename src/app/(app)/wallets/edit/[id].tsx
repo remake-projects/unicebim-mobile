@@ -1,8 +1,8 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { Alert, StyleSheet, Text } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
 
-import { Button } from '@/components/ui/button';
+import { ConfirmButton } from '@/components/ui/confirm-button';
 import { Screen, UNDER_HEADER_EDGES } from '@/components/ui/screen';
 import { ErrorState, LoadingState } from '@/components/ui/state-views';
 import { formatMoneyInput } from '@/core/money';
@@ -11,9 +11,7 @@ import { WalletForm } from '@/features/wallets/components/wallet-form';
 import { useDeleteWallet, useUpdateWallet, useWallet } from '@/features/wallets/use-wallets';
 import { canDeleteWallet } from '@/features/wallets/wallets-api';
 import { useTheme } from '@/hooks/use-theme';
-import { errorMessage } from '@/i18n/messages';
 import { AppError } from '@/lib/app-error';
-import { confirmDestructive } from '@/lib/confirm';
 
 export default function EditWalletScreen() {
   const { t } = useTranslation();
@@ -29,22 +27,6 @@ export default function EditWalletScreen() {
   if (!wallet.data) return <ErrorState error={new AppError('notFound')} />;
   const w = wallet.data;
 
-  async function onDelete() {
-    const confirmed = await confirmDestructive({
-      title: t('wallets.deleteTitle'),
-      message: t('wallets.deleteMessage'),
-      confirmLabel: t('common.delete'),
-      cancelLabel: t('common.cancel'),
-    });
-    if (!confirmed) return;
-    try {
-      await remove.mutateAsync(w.id);
-      router.dismissTo('/wallets');
-    } catch (error) {
-      Alert.alert(errorMessage(t, error));
-    }
-  }
-
   return (
     <Screen edges={UNDER_HEADER_EDGES}>
       <WalletForm
@@ -57,7 +39,15 @@ export default function EditWalletScreen() {
         }}
       />
       {canDeleteWallet(w) ? (
-        <Button variant="ghost" title={t('wallets.delete')} loading={remove.isPending} onPress={onDelete} />
+        <ConfirmButton
+          title={t('wallets.delete')}
+          confirmTitle={t('wallets.deleteTitle')}
+          confirmMessage={t('wallets.deleteMessage')}
+          onConfirm={async () => {
+            await remove.mutateAsync(w.id);
+            router.dismissTo('/wallets');
+          }}
+        />
       ) : (
         <Text style={[styles.note, { color: theme.textSecondary }]}>
           {w.isDefault ? t('wallets.cannotDeleteDefault') : t('wallets.cannotDeleteBalance')}
