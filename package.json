@@ -53,7 +53,8 @@
     "prepare": "husky",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:db": "bash scripts/test-migrations.sh"
+    "test:db": "bash scripts/test-migrations.sh",
+    "db:types": "supabase gen types typescript --linked --schema public > src/data/database.types.ts"
   },
   "private": true
 }

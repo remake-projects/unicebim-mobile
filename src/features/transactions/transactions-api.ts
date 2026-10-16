@@ -139,7 +139,7 @@ export async function fetchMonthSummary(range: MonthRange, walletId: string | nu
     await supabase.rpc('get_monthly_summary', {
       p_start: range.start.toISOString(),
       p_end: range.end.toISOString(),
-      p_wallet_id: walletId,
+      p_wallet_id: walletId ?? undefined,
     })
   );
   const row = rows[0];
