@@ -60,6 +60,13 @@ export default function ProfileScreen() {
         <MenuRow title={t('budget.title')} subtitle={t('budget.subtitle')} onPress={open('/settings/budget')} />
       </View>
 
+      <SectionHeader title={t('profile.tools')} />
+      <View>
+        <MenuRow title={t('bankImport.title')} subtitle={t('bankImport.subtitle')} onPress={open('/bank-import')} />
+        <MenuRow title={t('stats.report')} subtitle={t('stats.reportSubtitle')} onPress={open('/report')} />
+        <MenuRow title={t('billSplitter.title')} subtitle={t('billSplitter.subtitle')} onPress={open('/bill-splitter')} />
+      </View>
+
       <SectionHeader title={t('profile.account')} />
       <View>
         <MenuRow title={t('profile.edit')} subtitle={t('profile.editSubtitle')} onPress={open('/settings/profile')} />
