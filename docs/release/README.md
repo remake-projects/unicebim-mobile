@@ -3,6 +3,12 @@
 Everything in the repo that does not need an account is done; the steps below need the owner's
 accounts or decisions. Commands run from the repo root.
 
+## 0. CI
+
+GitHub Actions has never run in this repository: on a fork, workflows stay off until someone opens the
+**Actions** tab and enables them once. After that every push runs typecheck, lint, unit tests, the
+iOS/Android bundle export, the migration tests and the secret scan; the dependency audit runs weekly.
+
 ## 1. Decisions
 
 - [ ] **App identifier.** `app.json` uses `com.unicebim.app` for both stores as a placeholder. It
