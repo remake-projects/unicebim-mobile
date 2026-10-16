@@ -2,6 +2,7 @@ import { Pressable, ScrollView, StyleSheet, Text } from 'react-native';
 
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { haptics } from '@/lib/haptics';
 import type { Option } from './segmented-control';
 
 type Props<T extends string> = {
@@ -27,7 +28,11 @@ export function ChoiceChips<T extends string>({ options, value, onChange, access
             key={option.value}
             accessibilityRole="radio"
             accessibilityState={{ selected }}
-            onPress={() => onChange(option.value)}
+            onPress={() => {
+              if (selected) return;
+              haptics.select();
+              onChange(option.value);
+            }}
             style={[
               styles.chip,
               {

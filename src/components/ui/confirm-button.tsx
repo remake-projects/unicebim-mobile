@@ -4,6 +4,7 @@ import { Alert } from 'react-native';
 
 import { errorMessage } from '@/i18n/messages';
 import { confirmDestructive } from '@/lib/confirm';
+import { haptics } from '@/lib/haptics';
 import { Button, type ButtonProps } from './button';
 
 type Props = Omit<ButtonProps, 'onPress' | 'loading'> & {
@@ -30,7 +31,9 @@ export function ConfirmButton({ confirmTitle, confirmMessage, confirmLabel, onCo
     setBusy(true);
     try {
       await onConfirm();
+      haptics.success();
     } catch (error) {
+      haptics.error();
       Alert.alert(errorMessage(t, error));
     } finally {
       setBusy(false);

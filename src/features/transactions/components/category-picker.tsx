@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { categoriesFor, type TransactionType } from '@/core/categories';
 import { Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
+import { haptics } from '@/lib/haptics';
 import { categoryEmoji } from '../category-meta';
 import { useCategoryLabel } from '../use-category-label';
 
@@ -28,7 +29,11 @@ export function CategoryPicker({ type, value, onChange, error }: Props) {
               accessibilityRole="radio"
               accessibilityState={{ selected }}
               accessibilityLabel={label(category)}
-              onPress={() => onChange(category)}
+              onPress={() => {
+                if (selected) return;
+                haptics.select();
+                onChange(category);
+              }}
               style={[
                 styles.tile,
                 {
