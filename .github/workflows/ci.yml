@@ -24,6 +24,20 @@ jobs:
       - run: npm run lint
       - run: npm test
 
+  # Bundles the JavaScript for both platforms, catching broken imports that tsc cannot see
+  # (missing native modules, Metro resolution). No native build, no secrets needed.
+  bundle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx expo export --platform ios --platform android --output-dir "$RUNNER_TEMP/export"
+
   database:
     runs-on: ubuntu-latest
     timeout-minutes: 10
