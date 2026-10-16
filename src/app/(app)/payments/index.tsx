@@ -37,7 +37,11 @@ export default function PaymentsScreen() {
         onRefresh={() => payments.refetch()}
         refreshing={payments.isRefetching}>
         {payments.data.length === 0 ? (
-          <EmptyState message={t('payments.empty')} />
+          <EmptyState
+            icon="calendar"
+            message={t('payments.empty')}
+            action={{ label: t('payments.new'), onPress: () => router.push('/payments/new') }}
+          />
         ) : (
           <>
             <Card>

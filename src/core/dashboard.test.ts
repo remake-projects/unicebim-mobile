@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { buildDashboard, type DashboardInput } from './dashboard';
-import { groupByDay } from './transaction-groups';
+import { dayNet, groupByDay } from './transaction-groups';
 import { formatYearMonth, formatYmd } from './time';
 
 const base: DashboardInput = {
@@ -69,6 +69,20 @@ describe('groupByDay', () => {
       ['2026-10-13', ['c']],
     ]);
     expect(groupByDay(rows, 'UTC').map((g) => g.items.length)).toEqual([2, 1]);
+  });
+});
+
+describe('dayNet', () => {
+  it('nets income against expenses and ignores transfers', () => {
+    expect(
+      dayNet([
+        { amount: 100.1, type: 'income', isTransfer: false },
+        { amount: 40.2, type: 'expense', isTransfer: false },
+        { amount: 500, type: 'expense', isTransfer: true },
+        { amount: 500, type: 'income', isTransfer: true },
+      ]),
+    ).toBe(59.9);
+    expect(dayNet([])).toBe(0);
   });
 });
 

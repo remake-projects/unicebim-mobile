@@ -8,8 +8,8 @@ import { FAB_CLEARANCE } from '@/components/ui/fab';
 import { EmptyState, ErrorState } from '@/components/ui/state-views';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { addDays, formatYmd, todayYmd, type Ymd } from '@/core/time';
-import { groupByDay } from '@/core/transaction-groups';
-import { useRegion } from '@/features/profile/use-region';
+import { dayNet, groupByDay } from '@/core/transaction-groups';
+import { useFormatMoney, useRegion } from '@/features/profile/use-region';
 import { useWallets } from '@/features/wallets/use-wallets';
 import { useTheme } from '@/hooks/use-theme';
 import { invalidateLedger, type TransactionListFilters } from '@/lib/query-keys';
@@ -45,13 +45,20 @@ export function TransactionList({ filters, header }: Props) {
   const client = useQueryClient();
   const { timeZone } = useRegion();
   const dayLabel = useDayLabel();
+  const format = useFormatMoney();
   const list = useTransactionList(filters);
   const { data: wallets } = useWallets();
   const [refreshing, setRefreshing] = useState(false);
 
   const walletNames = new Map(wallets?.map((w) => [w.id, w.name]));
   const items = list.data?.pages.flatMap((p) => p.items) ?? [];
-  const sections = groupByDay(items, timeZone).map((g) => ({ title: g.date, data: g.items }));
+  const groups = groupByDay(items, timeZone);
+  const sections = groups.map((g, i) => ({
+    title: g.date,
+    // The last loaded day may continue on the next page, so its total would be partial.
+    net: i === groups.length - 1 && list.hasNextPage ? null : dayNet(g.items),
+    data: g.items,
+  }));
 
   async function onRefresh() {
     setRefreshing(true);
@@ -71,7 +78,14 @@ export function TransactionList({ filters, header }: Props) {
       stickySectionHeadersEnabled={false}
       ListHeaderComponent={<View style={styles.header}>{header}</View>}
       renderSectionHeader={({ section }) => (
-        <Text style={[styles.day, { color: theme.textSecondary }]}>{dayLabel(section.title)}</Text>
+        <View style={styles.dayRow}>
+          <Text style={[styles.day, { color: theme.textSecondary }]}>{dayLabel(section.title)}</Text>
+          {section.net ? (
+            <Text style={[styles.dayNet, { color: theme.textSecondary }]}>
+              {`${section.net > 0 ? '+' : '−'}${format(Math.abs(section.net))}`}
+            </Text>
+          ) : null}
+        </View>
       )}
       renderItem={({ item }) => (
         <TransactionRow
@@ -86,7 +100,7 @@ export function TransactionList({ filters, header }: Props) {
         ) : list.isLoadingError ? (
           <ErrorState error={list.error} onRetry={() => list.refetch()} />
         ) : (
-          <EmptyState message={t('transactions.empty')} />
+          <EmptyState icon="receipt" message={t('transactions.empty')} />
         )
       }
       ListFooterComponent={
@@ -110,6 +124,9 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   header: { gap: Spacing.three, paddingTop: Spacing.three, paddingBottom: Spacing.two },
-  day: { fontSize: 13, fontWeight: 700, textTransform: 'uppercase', marginTop: Spacing.three },
+  // No textTransform: 'uppercase' — it ignores the locale and turns Turkish "i" into "I".
+  dayRow: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', marginTop: Spacing.three },
+  day: { fontSize: 14, fontWeight: 700 },
+  dayNet: { fontSize: 13, fontWeight: 600, fontVariant: ['tabular-nums'] },
   loading: { marginVertical: Spacing.four },
 });

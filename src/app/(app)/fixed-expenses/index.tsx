@@ -35,7 +35,11 @@ export default function FixedExpensesScreen() {
           <Text style={[styles.hint, { color: theme.textSecondary }]}>{t('fixedExpenses.hint')}</Text>
         </Card>
         {expenses.data.length === 0 ? (
-          <EmptyState message={t('fixedExpenses.empty')} />
+          <EmptyState
+            icon="pin"
+            message={t('fixedExpenses.empty')}
+            action={{ label: t('fixedExpenses.new'), onPress: () => router.push('/fixed-expenses/new') }}
+          />
         ) : (
           <View>
             {expenses.data.map((e) => (

@@ -1,3 +1,4 @@
+import { roundMoney } from './number';
 import { ymdInZone, type Ymd } from './time';
 
 export type DayGroup<T> = { date: Ymd; items: T[] };
@@ -15,4 +16,16 @@ export function groupByDay<T extends { date: string }>(items: readonly T[], time
     else groups.push({ date, items: [item] });
   }
   return groups;
+}
+
+type Ledgerish = { amount: number; type: 'income' | 'expense'; isTransfer: boolean };
+
+/** Income minus expenses of one day's rows; transfers only move money and are left out. */
+export function dayNet(items: readonly Ledgerish[]): number {
+  let net = 0;
+  for (const item of items) {
+    if (item.isTransfer) continue;
+    net += item.type === 'income' ? Math.abs(item.amount) : -Math.abs(item.amount);
+  }
+  return roundMoney(net);
 }

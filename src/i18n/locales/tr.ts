@@ -168,7 +168,7 @@ const tr = {
     reserved: 'Ödemelere ayrılan',
     thisMonth: 'Bu ay',
     recent: 'Son işlemler',
-    recentEmpty: 'Henüz işlem yok. Sağ alttaki + ile ilkini ekle.',
+    recentEmpty: 'Henüz işlem yok. İlk harcamanı ya da gelirini ekle.',
   },
   insights: {
     dailyLimit: {

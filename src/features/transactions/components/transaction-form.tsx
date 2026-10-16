@@ -79,6 +79,8 @@ export function TransactionForm({ defaultValues, wallets, submitLabel, onSubmit 
         keyboardType="decimal-pad"
         inputMode="decimal"
         placeholder="0"
+        // A new entry starts at the amount, so the keyboard is already up.
+        autoFocus={!defaultValues.amount}
         style={styles.amount}
       />
 

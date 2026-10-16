@@ -33,7 +33,11 @@ export default function SubscriptionsScreen() {
         onRefresh={() => subscriptions.refetch()}
         refreshing={subscriptions.isRefetching}>
         {subscriptions.data.length === 0 ? (
-          <EmptyState message={t('subscriptions.empty')} />
+          <EmptyState
+            icon="repeat"
+            message={t('subscriptions.empty')}
+            action={{ label: t('subscriptions.new'), onPress: () => router.push('/subscriptions/new') }}
+          />
         ) : (
           <>
             <Card>

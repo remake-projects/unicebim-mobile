@@ -12,20 +12,20 @@ export function SpendableCard({ spendable }: { spendable: Spendable }) {
   const theme = useTheme();
   const format = useFormatMoney();
   return (
-    <Card style={{ backgroundColor: theme.primary }}>
-      <Text style={[styles.label, { color: theme.onPrimary }]}>{t('home.spendable')}</Text>
+    <Card style={[styles.card, { backgroundColor: theme.hero, borderColor: theme.heroBorder }]}>
+      <Text style={[styles.label, { color: theme.onHero }]}>{t('home.spendable')}</Text>
       <Text
         numberOfLines={1}
         adjustsFontSizeToFit
-        style={[styles.amount, { color: spendable.spendable < 0 ? theme.danger : theme.onPrimary }]}>
+        style={[styles.amount, { color: spendable.spendable < 0 ? theme.heroNegative : theme.onHero }]}>
         {format(spendable.spendable)}
       </Text>
       <View style={styles.row}>
-        <Text style={[styles.detail, { color: theme.onPrimary }]}>
+        <Text style={[styles.detail, { color: theme.onHero }]}>
           {t('home.walletTotal')}: {format(spendable.walletTotal)}
         </Text>
         {spendable.reserved > 0 ? (
-          <Text style={[styles.detail, { color: theme.onPrimary }]}>
+          <Text style={[styles.detail, { color: theme.onHero }]}>
             {t('home.reserved')}: {format(spendable.reserved)}
           </Text>
         ) : null}
@@ -35,6 +35,7 @@ export function SpendableCard({ spendable }: { spendable: Spendable }) {
 }
 
 const styles = StyleSheet.create({
+  card: { borderWidth: 1 },
   label: { fontSize: 14, fontWeight: 600, opacity: 0.8 },
   amount: { fontSize: 40, fontWeight: 800, fontVariant: ['tabular-nums'] },
   row: { gap: Spacing.half },

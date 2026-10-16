@@ -169,7 +169,7 @@ const en: Translations = {
     reserved: 'Set aside for payments',
     thisMonth: 'This month',
     recent: 'Recent transactions',
-    recentEmpty: 'No transactions yet. Add your first one with the + button.',
+    recentEmpty: 'No transactions yet. Add your first expense or income.',
   },
   insights: {
     dailyLimit: {

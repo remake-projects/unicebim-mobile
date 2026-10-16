@@ -18,7 +18,15 @@ export default function TransferScreen() {
 
   if (wallets.isLoadingError) return <ErrorState error={wallets.error} onRetry={() => wallets.refetch()} />;
   if (!wallets.data) return <LoadingState />;
-  if (wallets.data.length < 2) return <EmptyState message={t('wallets.needTwoWallets')} />;
+  if (wallets.data.length < 2) {
+    return (
+      <EmptyState
+        icon="wallet"
+        message={t('wallets.needTwoWallets')}
+        action={{ label: t('wallets.new'), onPress: () => router.replace('/wallets/new') }}
+      />
+    );
+  }
 
   const source = wallets.data.find((w) => w.id === from) ?? wallets.data[0]!;
   const target = wallets.data.find((w) => w.id !== source.id)!;

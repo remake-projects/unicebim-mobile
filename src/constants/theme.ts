@@ -17,6 +17,11 @@ export const Colors = {
     danger: '#dc2626',
     success: '#059669',
     warning: '#d97706',
+    // Headline card: the brand navy of the app icon in both modes.
+    hero: '#0f172a',
+    heroBorder: '#0f172a',
+    onHero: '#f8fafc',
+    heroNegative: '#fca5a5',
   },
   dark: {
     text: '#f8fafc',
@@ -30,6 +35,10 @@ export const Colors = {
     danger: '#f87171',
     success: '#34d399',
     warning: '#fbbf24',
+    hero: '#0f172a',
+    heroBorder: '#334155',
+    onHero: '#f8fafc',
+    heroNegative: '#fca5a5',
   },
 } as const;
 

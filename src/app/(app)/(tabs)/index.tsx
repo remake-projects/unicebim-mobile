@@ -108,7 +108,11 @@ function Dashboard() {
             ))}
           </View>
         ) : (
-          <EmptyState message={t('home.recentEmpty')} />
+          <EmptyState
+            icon="receipt"
+            message={t('home.recentEmpty')}
+            action={{ label: t('transactions.add'), onPress: () => router.push('/transaction/new') }}
+          />
         )}
       </Screen>
       <Fab accessibilityLabel={t('transactions.add')} onPress={() => router.push('/transaction/new')} />
