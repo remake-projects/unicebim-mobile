@@ -37,7 +37,8 @@ npx eas-cli@latest env:create --environment production --visibility plaintext \
 
 ## 4. Backend before real users
 
-- [ ] Apply pending migrations: `supabase login && supabase db push`.
+- [x] Migrations applied (2026-10-16). After each new one: `supabase db push`, then
+      `SUPABASE_ACCESS_TOKEN=... python3 -I scripts/smoke-backend.py`.
 - [ ] Custom SMTP in Supabase (Auth → SMTP); the built-in sender allows only a few e-mails per hour.
 - [ ] Brand the auth e-mail templates (confirm sign-up, reset password) in Turkish and English.
 - [ ] Decide on a separate staging project (docs/mobil-port-analizi.md §4).
