@@ -5,9 +5,10 @@ accounts or decisions. Commands run from the repo root.
 
 ## 0. CI
 
-GitHub Actions has never run in this repository: on a fork, workflows stay off until someone opens the
-**Actions** tab and enables them once. After that every push runs typecheck, lint, unit tests, the
-iOS/Android bundle export, the migration tests and the secret scan; the dependency audit runs weekly.
+All workflows pass on GitHub (first run 2026-10-16, started by hand): typecheck, lint, unit tests,
+the iOS/Android bundle export, the migration tests and the secret scan; the dependency audit runs
+weekly. Push-triggered runs stay off on this fork until someone opens the **Actions** tab once and
+confirms; until then start them with `gh workflow run CI` (or the "Run workflow" button).
 
 ## 1. Decisions
 
