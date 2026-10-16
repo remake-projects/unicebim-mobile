@@ -423,7 +423,7 @@ Mobil dashboard'u tasarlamadan önce bu tanımlar netleştirilmeli.
 - TanStack Query anahtarları tek yerde: `src/lib/query-keys.ts`. İşlem/transfer yazan her mutasyon `invalidateLedger()` ile `['ledger', …]` altındaki tüm görünümleri (ay özeti, kategori toplamları, listeler, son işlemler) ve `['wallets']` bakiyelerini birlikte tazeler.
 - İşlem listesi `get_transactions_page` RPC'si yerine doğrudan PostgREST sorgusu: `(date, id)` keyset sayfalama + tür/cüzdan filtresi (RPC filtre almıyordu ve `wallet_id`/`kind` döndürmüyordu). RPC web için yerinde duruyor.
 - Optimistic update henüz yok: form kaydedince modal kapanır, liste invalidation ile tazelenir. Gerçek cihazda yavaş hissettirirse eklenecek (bakiye yetersizse sunucu reddettiği için geri alma mantığı gerekir).
-- Offline: v1'de query cache persist + "çevrimdışısın" bandı yeterli; yazma kuyruğu (offline mutation) Faz 5.
+- Offline: query cache kullanıcıya bağlı olarak cihaza yazılır (`expo-sqlite/kv-store`, 7 gün) ve açılışta geri yüklenir; `expo-network` → TanStack `onlineManager`; çevrimdışıyken üstte bant. Yazmalar kuyruğa alınmaz, hemen "bağlantı yok" hatası verir (§8.1). Çıkışta önbellek, cihaz ayarları ve planlı bildirimler silinir.
 
 ### 6.3 Ekran haritası (web → mobil)
 
@@ -472,8 +472,8 @@ Mobil dashboard'u tasarlamadan önce bu tanımlar netleştirilmeli.
 | **3 — Çekirdek** | Dashboard (+ onboarding), işlem ekle/düzenle/sil, işlem listesi (ay, sayfalama, filtre), cüzdanlar + transfer + detay | Günlük kullanım için yeterli MVP | ✅ (cihazda denenmedi; optimistic update yok) |
 | **4 — Planlama** | Gelecek ödemeler (+ öde akışı), abonelikler (logo), sabit giderler, bütçe ayarları, profil + avatar + parola + **hesap silme** | Web ile özellik eşitliğinin büyük kısmı | ✅ (cihazda denenmedi; `avatars` migration'ı projeye uygulanmayı bekliyor) |
 | **5 — Analiz & araçlar** | İstatistik/grafikler, rapor + paylaş, banka dökümü içe aktarma, hesap bölüştürücü | Tam özellik eşitliği | ✅ (cihazda denenmedi) |
-| **6 — Mobil artıları** | Yerel bildirimler, biyometrik kilit, offline yazma kuyruğu, widget | Web'den daha iyi deneyim | Sıradaki |
-| **7 — Yayın** | Store metinleri, gizlilik formları, ikon/splash, EAS submit, beta (TestFlight / internal testing) | Store'da uygulama | — |
+| **6 — Mobil artıları** | Yerel bildirimler, biyometrik kilit, offline yazma kuyruğu, widget | Web'den daha iyi deneyim | ✅ kısmen: hatırlatmalar, uygulama kilidi, çevrimdışı okuma. Yazma kuyruğu ve widget ertelendi (§8.1) |
+| **7 — Yayın** | Store metinleri, gizlilik formları, ikon/splash, EAS submit, beta (TestFlight / internal testing) | Store'da uygulama | Sıradaki |
 
 ---
 
@@ -497,6 +497,10 @@ Mobil dashboard'u tasarlamadan önce bu tanımlar netleştirilmeli.
 | 2026-10-16 | İstatistik tek ekranda iki görünüm: "Aylık" (özet, kategori payları, günlük harcama, bu hafta/geçen hafta) ve "Son 6 ay" (`get_monthly_trends`) | §6.3 |
 | 2026-10-16 | Rapor: tarih aralığı + tür filtresi → CSV (UTF-8 BOM, çevrilmiş sütunlar) paylaşılır; web'deki JSON/HTML çıktıları ve bölüm seçimi alınmadı | §1.3 |
 | 2026-10-16 | Banka içe aktarma önizlemesinde satır çıkarılabilir; kategori düzenleme önizlemede yok (sonra işlemden düzenlenir); negatif son bakiye eşitleme için önerilmez (cüzdan eksiye düşemez) | B7 |
+| 2026-10-16 | Hatırlatmalar **yerel bildirim** (sunucu yok, B15 gerekmedi): ödemeden ve abonelik yenilemesinden bir gün önce, ödeme günü ve gelir günü 09:00'da (kullanıcının saat diliminde); 45 gün ileriye, en fazla 50 adet; veri değiştikçe yeniden planlanır. Ayar cihaza özel | §6.5 |
+| 2026-10-16 | Uygulama kilidi isteğe bağlı: açılışta ve 30 sn'den uzun arka plandan sonra; açıp kapamak da doğrulama ister; kilit ekranında çıkış yapma kaçış yolu | §6.1 |
+| 2026-10-16 | **Çevrimdışı yazma kuyruğu ertelendi:** bakiye eksiye düşemediği ve ödeme/transfer RPC'leri sunucuda doğrulandığı için sonradan gönderilen yazmalar sessizce reddedilebilir; çakışma/geri bildirim tasarımı olmadan eklenmez | §6.2 |
+| 2026-10-16 | **Ana ekran widget'ı ertelendi:** native hedef (WidgetKit / Glance) ve paylaşılan depolama gerektiriyor; cihazda denenmeden yazılmayacak, yayın sonrası değerlendirilir | §6.5 |
 
 | 2026-10-13 | Cüzdan bakiyesi **eksiye düşemez** (`CHECK (balance >= 0)` korunur); yetersiz bakiyede işlem net hata ile reddedilir | B1/B2 |
 | 2026-10-13 | Transfer: `transactions` içinde `kind = 'transfer'` + ortak `transfer_group_id` ile iki kayıt; istatistiklerde sayılmaz | B3/B4 |
