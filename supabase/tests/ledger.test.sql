@@ -194,6 +194,25 @@ select pg_temp.assert(
   'trends include this month''s income (transfers excluded)');
 select pg_temp.expect_error($$select * from get_monthly_trends(3, 'Mars/Base')$$, '22023', 'invalid time zone is rejected');
 
+-- ---------------------------------------------------------------- avatars
+select set_config('request.jwt.claim.sub', '11111111-1111-1111-1111-111111111111', false);
+insert into storage.objects (bucket_id, name) values ('avatars', '11111111-1111-1111-1111-111111111111/1.jpg');
+select pg_temp.assert(
+  (select count(*) = 1 from storage.objects where bucket_id = 'avatars'), 'a user can upload into their own avatar folder');
+select pg_temp.expect_error(
+  $$insert into storage.objects (bucket_id, name) values ('avatars', '22222222-2222-2222-2222-222222222222/1.jpg')$$,
+  '42501', 'a user cannot upload into another user''s avatar folder');
+select pg_temp.expect_error(
+  $$insert into storage.objects (bucket_id, name) values ('avatars', 'loose.jpg')$$,
+  '42501', 'avatars must live in a user folder');
+select set_config('request.jwt.claim.sub', '22222222-2222-2222-2222-222222222222', false);
+select pg_temp.assert((select count(*) = 0 from storage.objects), 'another user cannot see A''s avatar objects');
+delete from storage.objects;
+select set_config('request.jwt.claim.sub', '11111111-1111-1111-1111-111111111111', false);
+select pg_temp.assert((select count(*) = 1 from storage.objects), 'another user cannot delete A''s avatar');
+delete from storage.objects;
+select pg_temp.assert((select count(*) = 0 from storage.objects), 'a user can delete their own avatar');
+
 -- ---------------------------------------------------------------- RLS
 select set_config('request.jwt.claim.sub', '22222222-2222-2222-2222-222222222222', false);
 select pg_temp.assert((select count(*) = 0 from transactions), 'another user sees none of A''s transactions');
