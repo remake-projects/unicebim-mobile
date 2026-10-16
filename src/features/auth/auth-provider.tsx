@@ -1,8 +1,8 @@
 import type { Session } from '@supabase/supabase-js';
 import { createContext, use, useEffect, useState, type PropsWithChildren } from 'react';
 
-import { queryClient } from '@/lib/query-client';
 import { supabase } from '@/lib/supabase';
+import { clearLocalUserData } from './clear-local-data';
 
 type AuthState = { session: Session | null; isLoading: boolean };
 
@@ -18,7 +18,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
     });
     const { data } = supabase.auth.onAuthStateChange((event, session) => {
       // Never show one user's cached data to the next one.
-      if (event === 'SIGNED_OUT') queryClient.clear();
+      if (event === 'SIGNED_OUT') void clearLocalUserData();
       setState({ session, isLoading: false });
     });
     return () => {

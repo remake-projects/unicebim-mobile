@@ -71,6 +71,7 @@ export default function ProfileScreen() {
       <View>
         <MenuRow title={t('profile.edit')} subtitle={t('profile.editSubtitle')} onPress={open('/settings/profile')} />
         <MenuRow title={t('profile.changePassword')} onPress={open('/settings/password')} />
+        <MenuRow title={t('security.title')} subtitle={t('security.subtitle')} onPress={open('/settings/security')} />
       </View>
 
       <FormMessage message={error} />
