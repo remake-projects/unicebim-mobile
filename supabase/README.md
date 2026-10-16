@@ -11,6 +11,7 @@ Veritabanı şeması `migrations/` altında, sırayla uygulanan versiyonlu SQL d
 | `…120400_ledger_rpcs` | Transfer, varsayılan cüzdan, ödeme işaretleme, banka içe aktarma RPC'leri |
 | `…120500_reporting_rpcs` | `get_monthly_trends` |
 | `…120600_hardening` | `check_rate_limit` anon erişimini kapatma |
+| `20261016120000_avatars_bucket` | `avatars` storage bucket'ı (public, 2 MB, JPEG/PNG/WebP) ve kullanıcı klasörü politikaları |
 
 ## Uygulama
 

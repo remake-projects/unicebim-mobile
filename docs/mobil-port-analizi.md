@@ -303,7 +303,8 @@ supabase/migrations/         # SQL migration'lar (docs/supabase.sql'in yerini al
 | `xlsx`, `papaparse` | SheetJS + papaparse (cihazda) | npm'deki `xlsx@0.18.5` bakımsız ve bilinen açıkları var; SheetJS'in resmi dağıtımından güncel sürüm kullanılmalı |
 | `html-to-image` | `react-native-view-shot` | |
 | Blob download | `expo-file-system` + `expo-sharing` | |
-| `next/image` | `expo-image` | unavatar.io logoları için cache |
+| `next/image` | `expo-image` | Abonelik logoları (unavatar.io, `fallback=false` → yüklenemezse baş harf) ve avatar; disk cache |
+| Avatar yükleme (`<input type=file>`) | `expo-image-picker` + `expo-image-manipulator` | Kare kırpma, 512px JPEG'e küçültme; iOS'ta sistem seçicisi izin istemez, izin metni yine de `app.json`'da |
 | `@sentry/nextjs` | `@sentry/react-native` | |
 | Vitest | Vitest (core) + `jest-expo` (bileşen) + Maestro (E2E) | |
 
@@ -323,7 +324,7 @@ Mobil istemci doğrudan DB'ye yazacağı için, bugün server action'ların "ell
 >
 > **Güncelleme (2026-10-14):** Proje fork'la devralındı; web'in bağlı olduğu Supabase projesine erişim yok. Mobil için **yeni, boş bir Supabase projesi** açılır ve migration'lar oraya uygulanır (taşınacak veri yok). Yeni projede elle yapılması gerekenler: Auth yönlendirme adresleri (`unicebim://auth/callback`, Expo Go için `exp://**`), `delete-account` fonksiyonunun deploy'u; `avatars` storage bucket'ı Faz 4'te migration olarak eklenir (web'de elle kurulmuştu). Ücretsiz plandaki varsayılan e-posta gönderimi saatte birkaç e-postayla sınırlı; yayın öncesi özel SMTP gerekir.
 >
-> **Kurulum (2026-10-16):** Yeni proje `pqddrakkvkvfewnmxqzj` (eu-west-1) açıldı ve repoya bağlandı. Yapılanlar: 7 migration `supabase db push` ile uygulandı; `delete-account` deploy edildi; Auth'ta Site URL `unicebim://auth/callback`, yönlendirme adresleri `unicebim://**` ve `exp://**`, minimum parola uzunluğu uygulamayla aynı olacak şekilde 8; `src/data/database.types.ts` artık canlı şemadan üretiliyor (`npm run db:types`). Kalanlar: `avatars` bucket'ı (Faz 4 migration'ı — o gelene kadar `delete-account` storage listelemede hata verir), özel SMTP (yayın öncesi; şu an saatte 2 e-posta sınırı).
+> **Kurulum (2026-10-16):** Yeni proje `pqddrakkvkvfewnmxqzj` (eu-west-1) açıldı ve repoya bağlandı. Yapılanlar: 7 migration `supabase db push` ile uygulandı; `delete-account` deploy edildi; Auth'ta Site URL `unicebim://auth/callback`, yönlendirme adresleri `unicebim://**` ve `exp://**`, minimum parola uzunluğu uygulamayla aynı olacak şekilde 8; `src/data/database.types.ts` artık canlı şemadan üretiliyor (`npm run db:types`). Kalanlar: `20261016120000_avatars_bucket` migration'ı yazıldı ve lokal testten geçti ama projeye **henüz uygulanmadı** (o uygulanana kadar `delete-account` storage listelemede hata verir ve avatar yüklenemez); özel SMTP (yayın öncesi; şu an saatte 2 e-posta sınırı).
 
 | # | Değişiklik | Neden |
 |---|---|---|
@@ -346,7 +347,7 @@ Mobil istemci doğrudan DB'ye yazacağı için, bugün server action'ların "ell
 | B17 | `profiles`'a `currency` (ISO 4217, varsayılan `TRY`), `timezone` (IANA), `locale` kolonları; `subscriptions.currency` `TL` → `TRY` | Global hedef (§10) |
 | B18 | "Bugün"e bağlı hesaplar kullanıcının saat dilimiyle yapılsın | Uygulandı: `get_monthly_trends(p_months, p_tz)`. Ödemeler/abonelikler mobilde tabloya doğrudan, istemcinin "bugün"üyle sorgulanır; `current_date` kullanan eski RPC'ler yalnız web için duruyor |
 
-**Durum (2026-10-13):** B1–B8, B10–B14, B16–B18 `supabase/migrations/` + `supabase/functions/delete-account` olarak yazıldı ve `npm run test:db` ile lokal Postgres'te 48 davranış testiyle doğrulandı (2026-10-14: `get_monthly_summary` cüzdan filtresi aldı; migration henüz hiçbir projeye uygulanmadığı için yerinde değiştirildi). Henüz yapılmayanlar: B9 (tek çağrılık dashboard RPC'si — Faz 3'te gerek görülmedi: ana sayfa 5 paralel, önbellekli sorgu kullanıyor), B15 (push bildirimleri, Faz 6). Migration'lar 2026-10-16'da Supabase projesine uygulandı; bundan sonra mevcut migration dosyaları **değiştirilmez**, her şema değişikliği yeni bir migration dosyasıdır.
+**Durum (2026-10-13):** B1–B8, B10–B14, B16–B18 `supabase/migrations/` + `supabase/functions/delete-account` olarak yazıldı ve `npm run test:db` ile lokal Postgres'te 48 davranış testiyle doğrulandı (2026-10-14: `get_monthly_summary` cüzdan filtresi aldı; migration henüz hiçbir projeye uygulanmadığı için yerinde değiştirildi). Henüz yapılmayanlar: B9 (tek çağrılık dashboard RPC'si — Faz 3'te gerek görülmedi: ana sayfa 5 paralel, önbellekli sorgu kullanıyor), B15 (push bildirimleri, Faz 6). Migration'lar 2026-10-16'da Supabase projesine uygulandı; bundan sonra mevcut migration dosyaları **değiştirilmez**, her şema değişikliği yeni bir migration dosyasıdır. 2026-10-16: B19 — `avatars` bucket'ı ve klasör politikaları (`20261016120000_avatars_bucket`); lokal testler 54'e çıktı.
 
 ---
 
@@ -469,8 +470,8 @@ Mobil dashboard'u tasarlamadan önce bu tanımlar netleştirilmeli.
 | **1 — Backend** | B1–B9, B11–B14 migration'ları doğrudan mevcut Supabase projesine (web dondurulmuş, §4 uyarısı); RLS entegrasyon testlerinin gerçekten çalıştırılması | Atomik, tutarlı veri katmanı | ✅ yazıldı + test edildi; projeye uygulanması bekliyor |
 | **2 — İskelet** | Expo + Expo Router + TanStack Query + Supabase client + i18n; auth akışı (login/register/doğrulama deep link/parola sıfırlama); tema; tab bar + FAB; Sentry | Giriş yapıp boş tab'larda gezilebilen uygulama | ✅ (Sentry ve yüzen "+" hariç) |
 | **3 — Çekirdek** | Dashboard (+ onboarding), işlem ekle/düzenle/sil, işlem listesi (ay, sayfalama, filtre), cüzdanlar + transfer + detay | Günlük kullanım için yeterli MVP | ✅ (cihazda denenmedi; optimistic update yok) |
-| **4 — Planlama** | Gelecek ödemeler (+ öde akışı), abonelikler (logo), sabit giderler, bütçe ayarları, profil + avatar + parola + **hesap silme** | Web ile özellik eşitliğinin büyük kısmı | Sıradaki |
-| **5 — Analiz & araçlar** | İstatistik/grafikler, rapor + paylaş, banka dökümü içe aktarma, hesap bölüştürücü | Tam özellik eşitliği | — |
+| **4 — Planlama** | Gelecek ödemeler (+ öde akışı), abonelikler (logo), sabit giderler, bütçe ayarları, profil + avatar + parola + **hesap silme** | Web ile özellik eşitliğinin büyük kısmı | ✅ (cihazda denenmedi; `avatars` migration'ı projeye uygulanmayı bekliyor) |
+| **5 — Analiz & araçlar** | İstatistik/grafikler, rapor + paylaş, banka dökümü içe aktarma, hesap bölüştürücü | Tam özellik eşitliği | Sıradaki |
 | **6 — Mobil artıları** | Yerel bildirimler, biyometrik kilit, offline yazma kuyruğu, widget | Web'den daha iyi deneyim | — |
 | **7 — Yayın** | Store metinleri, gizlilik formları, ikon/splash, EAS submit, beta (TestFlight / internal testing) | Store'da uygulama | — |
 
@@ -488,6 +489,11 @@ Mobil dashboard'u tasarlamadan önce bu tanımlar netleştirilmeli.
 | 2026-10-13 | Web canlıda değil, kullanıcı yok → web dondurulur, migration'lar doğrudan mevcut Supabase projesine uygulanır; mobil yayına çıkınca dev/staging ayrımı kurulur | §4 uyarısı |
 | 2026-10-14 | Eski Supabase projesine erişim yok (fork ile devralındı) → mobil için yeni Supabase projesi açılır | §4 uyarısı |
 | 2026-10-16 | Yeni Supabase projesi kuruldu, migration'lar uygulandı; DB tipleri canlı şemadan üretiliyor | §4 uyarısı |
+| 2026-10-16 | Abonelik tutarları kullanıcının para biriminde (`profiles.currency`); formda para birimi sorulmaz | §10 |
+| 2026-10-16 | Abonelik logosu servis adından tahmin edilen alan adıyla unavatar.io'dan; geçmiş yenileme tarihi gösterimde döngü döngü ileri sarılır (DB'ye yazılmaz, düzenlenince yazılır) | §6.3 |
+| 2026-10-16 | Bütçe hedefi ayarlarda da zorunlu (silinirse ana sayfa onboarding'e döner) | — |
+| 2026-10-16 | Parola değişikliğinde mevcut parola, onunla yeniden giriş yapılarak doğrulanır (Supabase sormuyor) | §6.1 |
+| 2026-10-16 | Ödenen ödeme silinince kaydedilen gider işlemlerde kalır; "geri al" gideri siler ve tutarı cüzdana iade eder | B6 |
 
 | 2026-10-13 | Cüzdan bakiyesi **eksiye düşemez** (`CHECK (balance >= 0)` korunur); yetersiz bakiyede işlem net hata ile reddedilir | B1/B2 |
 | 2026-10-13 | Transfer: `transactions` içinde `kind = 'transfer'` + ortak `transfer_group_id` ile iki kayıt; istatistiklerde sayılmaz | B3/B4 |
