@@ -467,10 +467,10 @@ Mobil dashboard'u tasarlamadan önce bu tanımlar netleştirilmeli.
 | Faz | Kapsam | Çıktı | Durum |
 |---|---|---|---|
 | **0 — Karar & hazırlık** | §8'deki soruların cevaplanması; repo stratejisi; `core` modülünün çıkarılması (saf mantık + mevcut testler + §2.2'deki gömülü hesapların saf fonksiyona çevrilmesi); §5.3–5.6 düzeltmeleri `core`'da | Platformdan bağımsız, testli `core` | ✅ `src/core` (58 test) |
-| **1 — Backend** | B1–B9, B11–B14 migration'ları doğrudan mevcut Supabase projesine (web dondurulmuş, §4 uyarısı); RLS entegrasyon testlerinin gerçekten çalıştırılması | Atomik, tutarlı veri katmanı | ✅ yazıldı + test edildi; projeye uygulanması bekliyor |
-| **2 — İskelet** | Expo + Expo Router + TanStack Query + Supabase client + i18n; auth akışı (login/register/doğrulama deep link/parola sıfırlama); tema; tab bar + FAB; Sentry | Giriş yapıp boş tab'larda gezilebilen uygulama | ✅ (Sentry ve yüzen "+" hariç) |
+| **1 — Backend** | B1–B9, B11–B14 migration'ları doğrudan mevcut Supabase projesine (web dondurulmuş, §4 uyarısı); RLS entegrasyon testlerinin gerçekten çalıştırılması | Atomik, tutarlı veri katmanı | ✅ projeye uygulandı (2026-10-16), canlı duman testi 19/19 |
+| **2 — İskelet** | Expo + Expo Router + TanStack Query + Supabase client + i18n; auth akışı (login/register/doğrulama deep link/parola sıfırlama); tema; tab bar + FAB; Sentry | Giriş yapıp boş tab'larda gezilebilen uygulama | ✅ (Sentry hariç — hesap gerekiyor) |
 | **3 — Çekirdek** | Dashboard (+ onboarding), işlem ekle/düzenle/sil, işlem listesi (ay, sayfalama, filtre), cüzdanlar + transfer + detay | Günlük kullanım için yeterli MVP | ✅ (cihazda denenmedi; optimistic update yok) |
-| **4 — Planlama** | Gelecek ödemeler (+ öde akışı), abonelikler (logo), sabit giderler, bütçe ayarları, profil + avatar + parola + **hesap silme** | Web ile özellik eşitliğinin büyük kısmı | ✅ (cihazda denenmedi; `avatars` migration'ı projeye uygulanmayı bekliyor) |
+| **4 — Planlama** | Gelecek ödemeler (+ öde akışı), abonelikler (logo), sabit giderler, bütçe ayarları, profil + avatar + parola + **hesap silme** | Web ile özellik eşitliğinin büyük kısmı | ✅ (cihazda denenmedi) |
 | **5 — Analiz & araçlar** | İstatistik/grafikler, rapor + paylaş, banka dökümü içe aktarma, hesap bölüştürücü | Tam özellik eşitliği | ✅ (cihazda denenmedi) |
 | **6 — Mobil artıları** | Yerel bildirimler, biyometrik kilit, offline yazma kuyruğu, widget | Web'den daha iyi deneyim | ✅ kısmen: hatırlatmalar, uygulama kilidi, çevrimdışı okuma. Yazma kuyruğu ve widget ertelendi (§8.1) |
 | **7 — Yayın** | Store metinleri, gizlilik formları, ikon/splash, EAS submit, beta (TestFlight / internal testing) | Store'da uygulama | Hazırlık ✅ (ikon/splash, `eas.json`, uygulama kimliği, yasal metin ve store metni taslakları: `docs/release/`); hesaplar ve gönderim bekliyor |
@@ -518,11 +518,14 @@ Mobil dashboard'u tasarlamadan önce bu tanımlar netleştirilmeli.
 
 ### 8.2 Açık kararlar
 
-1. **Para birimi modeli:** v1'de kullanıcı başına tek para birimi (önerilen). Cüzdan başına farklı para birimi + kur dönüşümü ileride mi?
-2. **İlk sürüm dilleri:** Türkçe + İngilizce (önerilen) mi, yalnız Türkçe mi?
-3. **Minimum OS sürümleri:** Expo SDK varsayılanları (önerilen) mi, daha eski cihaz desteği mi?
-4. **Uygulama kimliği:** iOS `bundleIdentifier` / Android `package` (ör. `com.unicebim.app`). Mağazaya ilk yüklemeden sonra değiştirilemez; native build öncesi belirlenmeli (`app.json`'da henüz yok).
-5. **Yasal metin adresleri:** Kayıt ekranındaki şartlar onayı ve mağaza formları için gizlilik politikası / kullanım şartları URL'leri (web dondurulduğu için nerede yayınlanacağı).
+Önerilen varsayılanlarla ilerlendi; aşağıdakiler ilk store yüklemesinden önce kesinleşmeli.
+
+1. **Para birimi modeli:** v1'de kullanıcı başına tek para birimi (uygulandı). Cüzdan başına para birimi + kur dönüşümü yayın sonrası.
+2. **İlk sürüm dilleri:** Türkçe + İngilizce (uygulandı).
+3. **Minimum OS sürümleri:** Expo SDK 57 varsayılanları.
+4. **Uygulama kimliği:** geçici `com.unicebim.app` (§8.1). İlk yüklemeden sonra değiştirilemez.
+5. **Yasal metin adresleri:** metinler `docs/release/` altında hazır; nerede yayınlanacağı (ör. GitHub Pages) ve destek e-postası bekliyor.
+6. **Hata izleme (Sentry):** Faz 2'den kalan tek iş. Hesap ve DSN gerektiriyor; ilk beta öncesi eklenmesi önerilir.
 
 ---
 
