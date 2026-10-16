@@ -39,7 +39,13 @@
           "microphonePermission": false
         }
       ],
-      "expo-sharing"
+      "expo-sharing",
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "UniCebim uses Face ID to unlock the app when you turn on the app lock."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
