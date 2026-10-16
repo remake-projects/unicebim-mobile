@@ -442,6 +442,10 @@ const en: Translations = {
   offline: {
     banner: "You're offline · showing your last saved data",
   },
+  legal: {
+    privacy: 'Privacy policy',
+    terms: 'Terms of use',
+  },
   onboarding: {
     title: "Let's set up your budget",
     subtitle: 'Enter a monthly goal and we will work out your daily limit and warnings. You can fill in the rest later.',

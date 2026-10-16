@@ -441,6 +441,10 @@ const tr = {
   offline: {
     banner: 'Çevrimdışısın · son kaydedilen veriler gösteriliyor',
   },
+  legal: {
+    privacy: 'Gizlilik politikası',
+    terms: 'Kullanım şartları',
+  },
   onboarding: {
     title: 'Bütçeni kuralım',
     subtitle: 'Aylık hedefini gir; günlük limitini ve uyarıları buna göre hesaplayalım. Diğerlerini sonra da girebilirsin.',

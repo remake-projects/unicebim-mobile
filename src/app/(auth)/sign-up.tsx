@@ -5,6 +5,7 @@ import { useController, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 
 import { ThemedText } from '@/components/themed-text';
+import { LegalLinks } from '@/components/legal-links';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { FormMessage } from '@/components/ui/form-message';
@@ -77,6 +78,7 @@ export default function SignUpScreen() {
         onChange={terms.field.onChange}
         error={validationMessage(t, terms.fieldState.error?.message)}
       />
+      <LegalLinks />
       <FormMessage message={serverError} />
       <Button title={t('auth.signUp.submit')} loading={formState.isSubmitting} onPress={onSubmit} />
       <Button variant="ghost" title={t('auth.signUp.haveAccount')} onPress={() => router.back()} />

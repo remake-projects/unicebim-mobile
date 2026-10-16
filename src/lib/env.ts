@@ -12,4 +12,7 @@ export const env = {
     'EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY',
     process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY
   ),
+  /** Public legal pages; required for store builds, optional in development (links are hidden). */
+  privacyPolicyUrl: process.env.EXPO_PUBLIC_PRIVACY_POLICY_URL || null,
+  termsUrl: process.env.EXPO_PUBLIC_TERMS_URL || null,
 };

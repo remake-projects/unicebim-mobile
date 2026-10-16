@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
+import { LegalLinks } from '@/components/legal-links';
 import { Avatar } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { ConfirmButton } from '@/components/ui/confirm-button';
@@ -83,6 +84,7 @@ export default function ProfileScreen() {
         confirmLabel={t('profile.deleteAccountConfirm')}
         onConfirm={deleteAccount}
       />
+      <LegalLinks />
     </Screen>
   );
 }
