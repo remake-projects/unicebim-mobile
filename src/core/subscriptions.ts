@@ -1,5 +1,5 @@
 import { roundMoney } from './number';
-import { addMonthsToYmd, type Ymd } from './time';
+import { addMonthsToYmd, daysBetween, type Ymd } from './time';
 
 export const BILLING_CYCLES = ['monthly', 'yearly'] as const;
 export type BillingCycle = (typeof BILLING_CYCLES)[number];
@@ -15,6 +15,11 @@ export function nextRenewalOnOrAfter(date: Ymd, cycle: BillingCycle, today: Ymd)
   let next = date;
   for (let i = 1; next < today; i++) next = addMonthsToYmd(date, i * step);
   return next;
+}
+
+/** Days until the next renewal (0 = today). */
+export function daysUntilRenewal(date: Ymd, cycle: BillingCycle, today: Ymd): number {
+  return daysBetween(today, nextRenewalOnOrAfter(date, cycle, today));
 }
 
 /** The renewal after `date` (default for a new subscription that started on `date`). */

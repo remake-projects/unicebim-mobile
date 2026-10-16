@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { brandIconUrl, guessBrandDomain } from './brand-icon';
-import { monthlySubscriptionsTotal, nextRenewalOnOrAfter, renewalAfter } from './subscriptions';
+import { daysUntilRenewal, monthlySubscriptionsTotal, nextRenewalOnOrAfter, renewalAfter } from './subscriptions';
 import { addMonthsToYmd } from './time';
 
 describe('addMonthsToYmd', () => {
@@ -24,6 +24,12 @@ describe('subscriptions', () => {
     expect(nextRenewalOnOrAfter('2026-01-31', 'monthly', '2026-03-01')).toBe('2026-03-31');
     expect(nextRenewalOnOrAfter('2026-01-31', 'monthly', '2026-02-10')).toBe('2026-02-28');
     expect(nextRenewalOnOrAfter('2024-02-29', 'yearly', '2026-10-16')).toBe('2027-02-28');
+  });
+
+  it('counts days to the next renewal', () => {
+    expect(daysUntilRenewal('2026-10-16', 'monthly', '2026-10-16')).toBe(0);
+    expect(daysUntilRenewal('2026-10-20', 'monthly', '2026-10-16')).toBe(4);
+    expect(daysUntilRenewal('2026-09-20', 'monthly', '2026-10-16')).toBe(4);
   });
 
   it('suggests the next renewal for a new subscription', () => {

@@ -12,7 +12,9 @@ export type TransactionListFilters = {
 export const queryKeys = {
   profile: ['profile'] as const,
   wallets: ['wallets'] as const,
-  unpaidPayments: ['payments', 'unpaid'] as const,
+  payments: ['payments'] as const,
+  subscriptions: ['subscriptions'] as const,
+  fixedExpenses: ['fixedExpenses'] as const,
   /** Prefix of every ledger-derived query below. */
   ledger: ['ledger'] as const,
   monthSummary: (ym: YearMonth, walletId: string | null) => ['ledger', 'summary', ym, walletId] as const,

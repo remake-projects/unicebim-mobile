@@ -17,6 +17,7 @@ import {
   SocialScoreCard,
 } from '@/features/dashboard/components/insight-cards';
 import { SpendableCard } from '@/features/dashboard/components/spendable-card';
+import { RenewingSubscriptions, UpcomingPayments } from '@/features/dashboard/components/upcoming-sections';
 import { WalletStrip } from '@/features/dashboard/components/wallet-strip';
 import { useDashboard } from '@/features/dashboard/use-dashboard';
 import { OnboardingForm } from '@/features/profile/components/onboarding-form';
@@ -59,7 +60,8 @@ function Dashboard() {
       await Promise.all([
         invalidateLedger(client),
         client.invalidateQueries({ queryKey: queryKeys.profile }),
-        client.invalidateQueries({ queryKey: queryKeys.unpaidPayments }),
+        client.invalidateQueries({ queryKey: queryKeys.payments }),
+        client.invalidateQueries({ queryKey: queryKeys.subscriptions }),
       ]);
     } finally {
       setRefreshing(false);
@@ -79,6 +81,9 @@ function Dashboard() {
         <MealAndCountdownRow dashboard={dashboard} />
         <BudgetCard dashboard={dashboard} />
         <SocialScoreCard dashboard={dashboard} />
+
+        <UpcomingPayments />
+        <RenewingSubscriptions />
 
         <SectionHeader title={t('wallets.title')} actionLabel={t('common.seeAll')} onAction={() => router.push('/wallets')} />
         <WalletStrip wallets={wallets.data ?? []} />
