@@ -34,9 +34,9 @@ npx expo start              # Expo Go veya development build ile telefonda aç
 
 Veritabanı: [`supabase/README.md`](supabase/README.md) — migration'ları uygulama, edge function deploy.
 
-Supabase Auth → URL Configuration → Redirect URLs listesine `unicebim://auth/callback` (ve geliştirme
-için Expo Go'nun `exp://…/--/auth/callback` adresi) eklenmeli; e-posta doğrulama ve parola sıfırlama
-bağlantıları uygulamaya buradan döner.
+Supabase projesi (`pqddrakkvkvfewnmxqzj`) kurulu: migration'lar, `delete-account` fonksiyonu ve Auth yönlendirme
+adresleri (`unicebim://**`, Expo Go için `exp://**`) hazır. Şema değişince tipleri `npm run db:types` ile yeniden üretin
+(Supabase CLI ve `supabase link` gerekir).
 
 ## Kontroller
 

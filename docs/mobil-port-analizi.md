@@ -322,6 +322,8 @@ Mobil istemci doğrudan DB'ye yazacağı için, bugün server action'ların "ell
 > - İleride gerçek kullanıcı geldiğinde (mobil yayına çıkınca) ayrı bir dev/staging projesine geçilir; o noktadan sonra production'a doğrudan migration denenmez.
 >
 > **Güncelleme (2026-10-14):** Proje fork'la devralındı; web'in bağlı olduğu Supabase projesine erişim yok. Mobil için **yeni, boş bir Supabase projesi** açılır ve migration'lar oraya uygulanır (taşınacak veri yok). Yeni projede elle yapılması gerekenler: Auth yönlendirme adresleri (`unicebim://auth/callback`, Expo Go için `exp://**`), `delete-account` fonksiyonunun deploy'u; `avatars` storage bucket'ı Faz 4'te migration olarak eklenir (web'de elle kurulmuştu). Ücretsiz plandaki varsayılan e-posta gönderimi saatte birkaç e-postayla sınırlı; yayın öncesi özel SMTP gerekir.
+>
+> **Kurulum (2026-10-16):** Yeni proje `pqddrakkvkvfewnmxqzj` (eu-west-1) açıldı ve repoya bağlandı. Yapılanlar: 7 migration `supabase db push` ile uygulandı; `delete-account` deploy edildi; Auth'ta Site URL `unicebim://auth/callback`, yönlendirme adresleri `unicebim://**` ve `exp://**`, minimum parola uzunluğu uygulamayla aynı olacak şekilde 8; `src/data/database.types.ts` artık canlı şemadan üretiliyor (`npm run db:types`). Kalanlar: `avatars` bucket'ı (Faz 4 migration'ı — o gelene kadar `delete-account` storage listelemede hata verir), özel SMTP (yayın öncesi; şu an saatte 2 e-posta sınırı).
 
 | # | Değişiklik | Neden |
 |---|---|---|
@@ -344,7 +346,7 @@ Mobil istemci doğrudan DB'ye yazacağı için, bugün server action'ların "ell
 | B17 | `profiles`'a `currency` (ISO 4217, varsayılan `TRY`), `timezone` (IANA), `locale` kolonları; `subscriptions.currency` `TL` → `TRY` | Global hedef (§10) |
 | B18 | "Bugün"e bağlı hesaplar kullanıcının saat dilimiyle yapılsın | Uygulandı: `get_monthly_trends(p_months, p_tz)`. Ödemeler/abonelikler mobilde tabloya doğrudan, istemcinin "bugün"üyle sorgulanır; `current_date` kullanan eski RPC'ler yalnız web için duruyor |
 
-**Durum (2026-10-13):** B1–B8, B10–B14, B16–B18 `supabase/migrations/` + `supabase/functions/delete-account` olarak yazıldı ve `npm run test:db` ile lokal Postgres'te 48 davranış testiyle doğrulandı (2026-10-14: `get_monthly_summary` cüzdan filtresi aldı; migration henüz hiçbir projeye uygulanmadığı için yerinde değiştirildi). Henüz yapılmayanlar: B9 (tek çağrılık dashboard RPC'si — Faz 3'te gerek görülmedi: ana sayfa 5 paralel, önbellekli sorgu kullanıyor), B15 (push bildirimleri, Faz 6). Migration'lar Supabase projesine **henüz uygulanmadı**.
+**Durum (2026-10-13):** B1–B8, B10–B14, B16–B18 `supabase/migrations/` + `supabase/functions/delete-account` olarak yazıldı ve `npm run test:db` ile lokal Postgres'te 48 davranış testiyle doğrulandı (2026-10-14: `get_monthly_summary` cüzdan filtresi aldı; migration henüz hiçbir projeye uygulanmadığı için yerinde değiştirildi). Henüz yapılmayanlar: B9 (tek çağrılık dashboard RPC'si — Faz 3'te gerek görülmedi: ana sayfa 5 paralel, önbellekli sorgu kullanıyor), B15 (push bildirimleri, Faz 6). Migration'lar 2026-10-16'da Supabase projesine uygulandı; bundan sonra mevcut migration dosyaları **değiştirilmez**, her şema değişikliği yeni bir migration dosyasıdır.
 
 ---
 
@@ -485,6 +487,7 @@ Mobil dashboard'u tasarlamadan önce bu tanımlar netleştirilmeli.
 | 2026-10-13 | Repo: bu repo saf mobil uygulamaya dönüşür, web orijinal repoda kalır (monorepo yok); `core` platformdan bağımsız tutulur | §3.3 |
 | 2026-10-13 | Web canlıda değil, kullanıcı yok → web dondurulur, migration'lar doğrudan mevcut Supabase projesine uygulanır; mobil yayına çıkınca dev/staging ayrımı kurulur | §4 uyarısı |
 | 2026-10-14 | Eski Supabase projesine erişim yok (fork ile devralındı) → mobil için yeni Supabase projesi açılır | §4 uyarısı |
+| 2026-10-16 | Yeni Supabase projesi kuruldu, migration'lar uygulandı; DB tipleri canlı şemadan üretiliyor | §4 uyarısı |
 
 | 2026-10-13 | Cüzdan bakiyesi **eksiye düşemez** (`CHECK (balance >= 0)` korunur); yetersiz bakiyede işlem net hata ile reddedilir | B1/B2 |
 | 2026-10-13 | Transfer: `transactions` içinde `kind = 'transfer'` + ortak `transfer_group_id` ile iki kayıt; istatistiklerde sayılmaz | B3/B4 |

@@ -14,13 +14,15 @@ Veritabanı şeması `migrations/` altında, sırayla uygulanan versiyonlu SQL d
 
 ## Uygulama
 
-Supabase CLI ile (önerilen; uygulanan migration'ları kendisi takip eder):
+Supabase CLI ile (`brew install supabase/tap/supabase`; uygulanan migration'ları kendisi takip eder):
 
 ```bash
-npx supabase init          # yalnızca ilk sefer, config.toml oluşturur
-npx supabase link --project-ref <proje-ref>
-npx supabase db push
+supabase link --project-ref pqddrakkvkvfewnmxqzj   # SUPABASE_ACCESS_TOKEN + SUPABASE_DB_PASSWORD
+supabase db push
+npm run db:types                                    # src/data/database.types.ts'i canlı şemadan üretir
 ```
+
+Uygulanmış migration dosyaları değiştirilmez; her şema değişikliği yeni bir dosyadır.
 
 CLI yoksa: dosyaları **isim sırasıyla** SQL Editor'de çalıştırın.
 
@@ -34,7 +36,7 @@ CLI yoksa: dosyaları **isim sırasıyla** SQL Editor'de çalıştırın.
 ## Edge Functions
 
 - `functions/delete-account`: oturum açmış kullanıcının avatar dosyalarını ve hesabını siler
-  (App Store / Google Play hesap silme zorunluluğu). Deploy: `npx supabase functions deploy delete-account`.
+  (App Store / Google Play hesap silme zorunluluğu). Deploy: `supabase functions deploy delete-account --use-api` (Docker gerekmez).
 
 ## Testler
 
