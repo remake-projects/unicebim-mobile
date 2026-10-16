@@ -2,6 +2,7 @@ import { Stack } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 
 import { AppLock } from '@/features/app-lock/app-lock';
+import { useProfileLanguage } from '@/features/profile/use-profile-language';
 import { useReminderSync } from '@/features/reminders/use-reminder-sync';
 
 export const unstable_settings = { anchor: '(tabs)' };
@@ -10,6 +11,7 @@ export const unstable_settings = { anchor: '(tabs)' };
 export default function AppLayout() {
   const { t } = useTranslation();
   useReminderSync();
+  useProfileLanguage();
   const modal = { presentation: 'modal' } as const;
   return (
     <>
@@ -66,6 +68,7 @@ export default function AppLayout() {
           options={{ ...modal, title: t('profile.changePassword') }}
         />
         <Stack.Screen name="settings/security" options={{ title: t('security.title') }} />
+        <Stack.Screen name="settings/region" options={{ ...modal, title: t('region.title') }} />
 
         <Stack.Screen name="report" options={{ title: t('report.title') }} />
         <Stack.Screen name="bank-import" options={{ title: t('bankImport.title') }} />

@@ -504,6 +504,7 @@ Mobil dashboard'u tasarlamadan önce bu tanımlar netleştirilmeli.
 | 2026-10-16 | Uygulama kimliği geçici olarak `com.unicebim.app` (iOS + Android); ilk store yüklemesinden önce kesinleşmeli | docs/release |
 | 2026-10-16 | İkon: lacivert (`#0F172A`) zemin, cebe düşen yeşil para ("U"); kaynak SVG'ler `assets/source/`. Expo şablonunun Icon Composer paketi kaldırıldı | docs/release |
 | 2026-10-16 | Gizlilik politikası / kullanım şartları adresleri `EXPO_PUBLIC_PRIVACY_POLICY_URL` / `EXPO_PUBLIC_TERMS_URL`; kayıt ekranında ve profilde bağlantı (adres yoksa gizli) | §6.6 |
+| 2026-10-16 | Profil → "Dil ve bölge": arayüz dili (tr/en), para birimi (tutarlar dönüştürülmez, abonelikler de güncellenir) ve saat dilimi (kayıttaki ya da cihazınki) sonradan değiştirilebilir; arayüz dili profildeki dili izler | §10 |
 
 | 2026-10-13 | Cüzdan bakiyesi **eksiye düşemez** (`CHECK (balance >= 0)` korunur); yetersiz bakiyede işlem net hata ile reddedilir | B1/B2 |
 | 2026-10-13 | Transfer: `transactions` içinde `kind = 'transfer'` + ortak `transfer_group_id` ile iki kayıt; istatistiklerde sayılmaz | B3/B4 |

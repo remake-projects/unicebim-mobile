@@ -445,6 +445,16 @@ const tr = {
     privacy: 'Gizlilik politikası',
     terms: 'Kullanım şartları',
   },
+  region: {
+    title: 'Dil ve bölge',
+    subtitle: 'Dil, para birimi, saat dilimi',
+    language: 'Dil',
+    currency: 'Para birimi',
+    currencyHint: 'Tutarlar dönüştürülmez; yalnızca gösterilen para birimi değişir.',
+    timeZone: 'Saat dilimi',
+    timeZoneHint: '"Bugün" ve "bu ay" bu saat dilimine göre hesaplanır.',
+    deviceTimeZone: '{{zone}} (bu cihaz)',
+  },
   onboarding: {
     title: 'Bütçeni kuralım',
     subtitle: 'Aylık hedefini gir; günlük limitini ve uyarıları buna göre hesaplayalım. Diğerlerini sonra da girebilirsin.',

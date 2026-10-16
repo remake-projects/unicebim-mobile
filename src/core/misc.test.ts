@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
 import { splitEqually, splitItemized } from './bill-splitter';
+import { currencyChoices } from './currencies';
+import { regionSettingsSchema } from './schemas/profile';
 import { extractIban, formatIban, isValidIban } from './iban';
 import { dailyTotals, fillMonthDays, summarizeTrend, weekOverWeekExpenses } from './stats';
 
@@ -72,5 +74,20 @@ describe('fillMonthDays', () => {
     expect(days).toHaveLength(28);
     expect(days[0]).toEqual({ date: '2026-02-01', income: 0, expense: 0 });
     expect(days[9]).toEqual({ date: '2026-02-10', income: 0, expense: 25 });
+  });
+});
+
+describe('region settings', () => {
+  it('keeps the current currency first and unique', () => {
+    expect(currencyChoices('EUR')[0]).toBe('EUR');
+    expect(currencyChoices('EUR').filter((c) => c === 'EUR')).toHaveLength(1);
+    expect(currencyChoices('ISK')[0]).toBe('ISK');
+  });
+
+  it('validates currency, time zone and locale tag', () => {
+    expect(regionSettingsSchema.safeParse({ currency: 'EUR', timeZone: 'Europe/Berlin', locale: 'en-GB' }).success).toBe(true);
+    expect(regionSettingsSchema.safeParse({ currency: 'eur', timeZone: 'Europe/Berlin', locale: 'en' }).success).toBe(false);
+    expect(regionSettingsSchema.safeParse({ currency: 'EUR', timeZone: 'Mars/Base', locale: 'en' }).success).toBe(false);
+    expect(regionSettingsSchema.safeParse({ currency: 'EUR', timeZone: 'UTC', locale: 'EN_us' }).success).toBe(false);
   });
 });

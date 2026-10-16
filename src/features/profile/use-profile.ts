@@ -1,10 +1,18 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
-import type { BudgetSettingsInput } from '@/core/schemas/profile';
+import type { BudgetSettingsInput, RegionSettingsInput } from '@/core/schemas/profile';
 import { useUserId } from '@/features/auth/auth-provider';
 import { queryKeys } from '@/lib/query-keys';
 import { pickAvatarImage } from './avatar-image';
-import { fetchProfile, removeAvatar, updateBudgetSettings, updateFullName, uploadAvatar, type Profile } from './profile-api';
+import {
+  fetchProfile,
+  removeAvatar,
+  updateBudgetSettings,
+  updateFullName,
+  updateRegionSettings,
+  uploadAvatar,
+  type Profile,
+} from './profile-api';
 
 export function useProfile() {
   const userId = useUserId();
@@ -23,6 +31,10 @@ function useProfileMutation<TVariables>(mutationFn: (userId: string, variables: 
 
 export function useUpdateBudgetSettings() {
   return useProfileMutation((userId, input: BudgetSettingsInput) => updateBudgetSettings(userId, input));
+}
+
+export function useUpdateRegionSettings() {
+  return useProfileMutation((userId, input: RegionSettingsInput) => updateRegionSettings(userId, input));
 }
 
 export function useUpdateFullName() {

@@ -27,10 +27,14 @@ export const onboardingSchema = budgetSettingsSchema.extend({
   monthlyBudgetGoal: positiveMoney,
 });
 
+/** BCP 47 tag as the database accepts it (profiles_locale_format), e.g. "tr" or "en-GB". */
+const localeTag = z.string().regex(/^[a-z]{2,3}(-[A-Za-z0-9]{2,8})*$/, V.required);
+
+/** Currency, time zone and language; amounts are not converted when the currency changes. */
 export const regionSettingsSchema = z.object({
   currency: currencyCode,
   timeZone,
-  locale: z.string().min(2).max(35),
+  locale: localeTag,
 });
 
 export type ProfileFormInput = z.input<typeof profileSchema>;

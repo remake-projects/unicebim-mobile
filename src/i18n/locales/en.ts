@@ -446,6 +446,16 @@ const en: Translations = {
     privacy: 'Privacy policy',
     terms: 'Terms of use',
   },
+  region: {
+    title: 'Language & region',
+    subtitle: 'Language, currency, time zone',
+    language: 'Language',
+    currency: 'Currency',
+    currencyHint: 'Amounts are not converted; only the currency shown changes.',
+    timeZone: 'Time zone',
+    timeZoneHint: '"Today" and "this month" follow this time zone.',
+    deviceTimeZone: '{{zone}} (this device)',
+  },
   onboarding: {
     title: "Let's set up your budget",
     subtitle: 'Enter a monthly goal and we will work out your daily limit and warnings. You can fill in the rest later.',

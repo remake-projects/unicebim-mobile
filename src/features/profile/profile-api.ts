@@ -1,5 +1,5 @@
 import { toFiniteNumber } from '@/core/number';
-import type { BudgetSettingsInput } from '@/core/schemas/profile';
+import type { BudgetSettingsInput, RegionSettingsInput } from '@/core/schemas/profile';
 import type { Ymd } from '@/core/time';
 import type { Database } from '@/data/database.types';
 import { unwrap } from '@/lib/data-error';
@@ -49,6 +49,20 @@ export function updateBudgetSettings(userId: string, input: BudgetSettingsInput)
     next_income_date: input.nextIncomeDate,
     meal_price: input.mealPrice,
   });
+}
+
+/**
+ * One currency per user (v1): subscriptions follow the profile. Amounts are not converted;
+ * the user is told so before saving.
+ */
+export async function updateRegionSettings(userId: string, input: RegionSettingsInput): Promise<Profile> {
+  const profile = await updateProfile(userId, {
+    currency: input.currency,
+    timezone: input.timeZone,
+    locale: input.locale,
+  });
+  unwrap(await supabase.from('subscriptions').update({ currency: input.currency }).eq('user_id', userId));
+  return profile;
 }
 
 export function updateFullName(userId: string, fullName: string): Promise<Profile> {
