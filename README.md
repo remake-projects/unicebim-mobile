@@ -48,7 +48,7 @@ Yayın kontrol listesi, store metinleri ve yasal metin taslakları: [`docs/relea
 ```bash
 npm run typecheck   # TypeScript
 npm run lint        # ESLint (eslint-config-expo)
-npm test            # core + i18n birim testleri (Vitest)
+npm test            # core, i18n, lib ve özellik birim testleri (Vitest)
 npm run test:db     # migration'ları geçici lokal Postgres'te test eder (initdb/pg_ctl/psql gerekir)
 ```
 
