@@ -126,6 +126,12 @@ export function addMonths(ym: YearMonth, delta: number): YearMonth {
   return `${pad(year, 4)}-${pad(month + 1)}`;
 }
 
+/** Same day of the month `delta` months later, clamped to that month's last day (Jan 31 + 1 → Feb 28). */
+export function addMonthsToYmd(ymd: Ymd, delta: number): Ymd {
+  const [year, month] = addMonths(ymd.slice(0, 7), delta).split('-').map(Number) as [number, number];
+  return toYmd(year, month, Math.min(Number(ymd.slice(8, 10)), daysInMonth(year, month)));
+}
+
 export function addDays(ymd: Ymd, delta: number): Ymd {
   const d = new Date(ymdToUtcMs(ymd) + delta * MS_PER_DAY);
   return toYmd(d.getUTCFullYear(), d.getUTCMonth() + 1, d.getUTCDate());

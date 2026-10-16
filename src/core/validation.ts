@@ -26,7 +26,6 @@ export const V = {
   termsRequired: 'termsRequired',
   invalidCurrency: 'invalidCurrency',
   invalidTimeZone: 'invalidTimeZone',
-  invalidUrl: 'invalidUrl',
 } as const;
 
 export type ValidationCode = (typeof V)[keyof typeof V];

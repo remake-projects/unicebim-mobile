@@ -1,33 +1,35 @@
 import { z } from 'zod';
 
-import { currencyCode, id, positiveMoney, requiredText, V, ymd } from '../validation';
+import { BILLING_CYCLES } from '../subscriptions';
+import { id, positiveMoney, requiredText, V, ymd } from '../validation';
 
 export const PLAN_NAME_MAX_LENGTH = 200;
 export const FIXED_EXPENSE_NAME_MAX_LENGTH = 100;
 
-/** Upcoming one-off payment (rent, dorm fee, bill…). `today` is the user's current date. */
-export const makePaymentSchema = (today: string) =>
-  z.object({
-    name: requiredText(PLAN_NAME_MAX_LENGTH),
-    amount: positiveMoney,
-    dueDate: ymd.refine((d) => d >= today, V.dateInPast),
-  });
-
-export const updatePaymentSchema = z.object({
-  id,
+/** Upcoming one-off payment (rent, dorm fee, bill…). Editing may keep a due date that has passed. */
+export const paymentSchema = z.object({
   name: requiredText(PLAN_NAME_MAX_LENGTH),
   amount: positiveMoney,
   dueDate: ymd,
 });
 
+/** A new payment cannot be due before `today` (the user's current date). */
+export const makePaymentSchema = (today: string) =>
+  paymentSchema.extend({ dueDate: ymd.refine((d) => d >= today, V.dateInPast) });
+
+/** Recording a payment as paid: which wallet it came out of, and when. */
+export const payPaymentSchema = z.object({
+  walletId: id,
+  date: ymd,
+});
+
+/** Amounts are in the user's currency; the logo is derived from the name. */
 export const subscriptionSchema = z.object({
   name: requiredText(PLAN_NAME_MAX_LENGTH),
   amount: positiveMoney,
-  currency: currencyCode,
-  billingCycle: z.enum(['monthly', 'yearly']),
+  billingCycle: z.enum(BILLING_CYCLES),
   nextRenewalDate: ymd,
-  iconUrl: z.url({ error: V.invalidUrl }).nullish().transform((v) => v ?? null),
-  isActive: z.boolean().default(true),
+  isActive: z.boolean(),
 });
 
 export const fixedExpenseSchema = z.object({
@@ -35,8 +37,9 @@ export const fixedExpenseSchema = z.object({
   amount: positiveMoney,
 });
 
-export type PaymentFormInput = z.input<ReturnType<typeof makePaymentSchema>>;
-export type PaymentInput = z.output<ReturnType<typeof makePaymentSchema>>;
+export type PaymentFormInput = z.input<typeof paymentSchema>;
+export type PaymentInput = z.output<typeof paymentSchema>;
+export type PayPaymentInput = z.output<typeof payPaymentSchema>;
 export type SubscriptionFormInput = z.input<typeof subscriptionSchema>;
 export type SubscriptionInput = z.output<typeof subscriptionSchema>;
 export type FixedExpenseFormInput = z.input<typeof fixedExpenseSchema>;

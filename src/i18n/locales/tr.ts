@@ -92,7 +92,6 @@ const tr = {
     termsRequired: 'Devam etmek için şartları kabul etmelisin.',
     invalidCurrency: 'Geçerli bir para birimi seç.',
     invalidTimeZone: 'Geçerli bir saat dilimi seç.',
-    invalidUrl: 'Geçerli bir bağlantı gir.',
   },
   categories: {
     scholarship: 'Burs / KYK',

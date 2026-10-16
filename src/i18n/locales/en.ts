@@ -93,7 +93,6 @@ const en: Translations = {
     termsRequired: 'You need to accept the terms to continue.',
     invalidCurrency: 'Pick a valid currency.',
     invalidTimeZone: 'Pick a valid time zone.',
-    invalidUrl: 'Enter a valid link.',
   },
   categories: {
     scholarship: 'Scholarship / Grant',
